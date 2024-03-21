@@ -680,7 +680,7 @@
 		"ts-jest": "27.0.5",
 		"ts-loader": "9.4.4",
 		"typescript": "4.4.3",
-		"typescript-esbuild": "latest",
+		"typescript-esbuild": "0.4.5",
 		"uglify-js": "3.17.4",
 		"unzipper": "0.10.14",
 		"vscode-languageclient": "7.0.0",
