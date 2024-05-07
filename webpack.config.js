@@ -5,7 +5,7 @@ const copyPlugin = require('copy-webpack-plugin');
 const path = require('path');
 const { DefinePlugin } = require('webpack');
 
-/** @type {Partial<import('webpack').Configuration>} */
+
 const commonConfig = {
     devtool: 'source-map',
     mode: 'production',
