@@ -1,28 +1,8 @@
 {
 	"name": "vscode-edge-devtools",
 	"displayName": "Microsoft Edge Tools for VS Code",
-	"version": "0.0.1",
-	"private": false,
 	"description": "Use the Microsoft Edge Tools from within VS Code to see your site's runtime HTML structure, alter its layout, fix styling issues as well as see your site's network requests.",
-	"keywords": [
-		"land"
-	],
-	"homepage": "HTTPS://GitHub.Com/CodeEditorLand/LandEdgeDevTools#readme",
-	"bugs": {
-		"url": "HTTPS://GitHub.Com/CodeEditorLand/LandEdgeDevTools/issues"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+HTTPS://github.com/CodeEditorLand/LandEdgeDevTools.git"
-	},
-	"license": "SEE LICENSE IN LICENSE",
-	"author": {
-		"name": "🛬 Land —",
-		"email": "Land@PlayForm.Cloud",
-		"url": "HTTPS://Land.PlayForm.Cloud"
-	},
 	"sideEffects": false,
-	"type": "module",
 	"main": "./out/extension",
 	"scripts": {
 		"Document": "Document 'Source/**/*.ts'",
@@ -663,7 +643,6 @@
 	},
 	"devDependencies": {
 		"@playform/build": "0.0.7",
-		"@playform/document": "0.0.6",
 		"@types/fs-extra": "11.0.4",
 		"@types/node": "20.12.10",
 		"@types/puppeteer-core": "5.4.0",
@@ -672,9 +651,6 @@
 		"ts-loader": "9.5.1",
 		"uglify-js": "3.17.4",
 		"unzipper": "0.11.5"
-	},
-	"publishConfig": {
-		"access": "public"
 	},
 	"icon": "icon.png",
 	"preview": false,
