@@ -633,7 +633,7 @@
 	},
 	"dependencies": {
 		"bufferutil": "4.0.7",
-		"lit-html": "^2.7.5",
+		"lit-html": "2.7.5",
 		"puppeteer-core": "13.1.2",
 		"utf-8-validate": "6.0.3",
 		"ws": "8.13.0",
