@@ -33,6 +33,7 @@ bower_components
 build/Release
 
 # Dependency directories
+node_modules/
 jspm_packages/
 
 # TypeScript v1 declaration files
@@ -54,6 +55,7 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
+.env
 
 # next.js build output
 .next
@@ -66,3 +68,4 @@ coverage/
 # favicons - we want to ignore any downloaded .ico files but keep the directory that stores them.
 resources/favicons/*
 !resources/favicons/.gitkeep
+.DS_Store

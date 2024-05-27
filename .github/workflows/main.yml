@@ -1,0 +1,26 @@
+# This GHA workflow syncs GitHub issues to Azure DevOps work items
+name: Sync Issue with ADO
+
+on:
+  # Only run when a label is added to an issue
+  issues:
+    types: [labeled]
+
+jobs:
+  create_ado_item:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    name: ADOSync workflow
+    steps:
+    - uses: MicrosoftEdge/action-issue-to-workitem@main
+      env:
+        ado_token: "${{ secrets.ADO_PERSONAL_ACCESS_TOKEN }}"
+        github_token: "${{ secrets.GITHUB_TOKEN }}"
+      with:
+        label: 'tracked'
+        ado_organization: 'microsoft'
+        ado_project: 'Edge'
+        ado_tags: 'DevToolsVSCodeExtension_GitHub'
+        ado_area_path: 'Edge\Web Experience\Developer Tools\F12 Tools\VSCode Extension'
+        ado_work_item_type: 'Bug'
