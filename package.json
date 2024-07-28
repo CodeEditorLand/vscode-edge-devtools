@@ -1,16 +1,25 @@
 {
-	"name": "vscode-edge-devtools",
-	"displayName": "Microsoft Edge Tools for VS Code",
-	"description": "Use the Microsoft Edge Tools from within VS Code to see your site's runtime HTML structure, alter its layout, fix styling issues as well as see your site's network requests.",
-	"sideEffects": false,
-	"main": "./out/extension",
-	"scripts": {
-		"build": "webpack",
-		"build-and-lint": "npm run build && npm run lint",
-		"build-debug": "npm run build -- --mode development --env debug",
-		"build-edge-watch": "npm run build-debug -- --env devtoolsBaseUri=http://localhost:3000/vscode_app.html",
-		"build-watch": "npm run build -- --mode development && npm run watch",
-		"watch-wp": "webpack --watch"
+	"activationEvents": [
+		"onStartupFinished",
+		"onLanguage:css",
+		"onLanguage:html",
+		"onLanguage:javascript",
+		"onLanguage:javascriptreact",
+		"onLanguage:json",
+		"onLanguage:jsonc",
+		"onLanguage:less",
+		"onLanguage:sass",
+		"onLanguage:scss",
+		"onLanguage:typescript",
+		"onLanguage:typescriptreact"
+	],
+	"aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
+	"capabilities": {
+		"untrustedWorkspaces": {
+			"description": "Workspace trust is needed to configure and debug projects",
+			"supported": "limited"
+		},
+		"virtualWorkspaces": false
 	},
 	"contributes": {
 		"commands": [
@@ -599,20 +608,30 @@
 			}
 		]
 	},
-	"activationEvents": [
-		"onStartupFinished",
-		"onLanguage:css",
-		"onLanguage:html",
-		"onLanguage:javascript",
-		"onLanguage:javascriptreact",
-		"onLanguage:json",
-		"onLanguage:jsonc",
-		"onLanguage:less",
-		"onLanguage:sass",
-		"onLanguage:scss",
-		"onLanguage:typescript",
-		"onLanguage:typescriptreact"
+	"dependencies": {
+		"bufferutil": "4.0.7",
+		"lit-html": "2.7.5",
+		"puppeteer-core": "13.1.2",
+		"utf-8-validate": "6.0.3",
+		"ws": "8.13.0",
+		"xmlhttprequest": "1.8.0"
+	},
+	"description": "Use the Microsoft Edge Tools from within VS Code to see your site's runtime HTML structure, alter its layout, fix styling issues as well as see your site's network requests.",
+	"devDependencies": {
+		"@types/fs-extra": "11.0.1",
+		"@types/node": "20.4.2",
+		"@types/puppeteer-core": "5.4.0",
+		"@types/ws": "8.5.5",
+		"fs-extra": "11.1.1",
+		"ts-loader": "9.4.4",
+		"uglify-js": "3.17.4",
+		"unzipper": "0.10.14"
+	},
+	"displayName": "Microsoft Edge Tools for VS Code",
+	"extensionKind": [
+		"ui"
 	],
+	"icon": "icon.png",
 	"jest": {
 		"globals": {
 			"DEBUG": false,
@@ -631,35 +650,16 @@
 			"^.+\\.tsx?$": "ts-jest"
 		}
 	},
-	"dependencies": {
-		"bufferutil": "4.0.7",
-		"lit-html": "2.7.5",
-		"puppeteer-core": "13.1.2",
-		"utf-8-validate": "6.0.3",
-		"ws": "8.13.0",
-		"xmlhttprequest": "1.8.0"
-	},
-	"devDependencies": {
-		"@types/fs-extra": "11.0.1",
-		"@types/node": "20.4.2",
-		"@types/puppeteer-core": "5.4.0",
-		"@types/ws": "8.5.5",
-		"fs-extra": "11.1.1",
-		"ts-loader": "9.4.4",
-		"uglify-js": "3.17.4",
-		"unzipper": "0.10.14"
-	},
-	"icon": "icon.png",
+	"main": "./out/extension",
+	"name": "vscode-edge-devtools",
 	"preview": false,
-	"aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
-	"capabilities": {
-		"untrustedWorkspaces": {
-			"description": "Workspace trust is needed to configure and debug projects",
-			"supported": "limited"
-		},
-		"virtualWorkspaces": false
+	"scripts": {
+		"build": "webpack",
+		"build-and-lint": "npm run build && npm run lint",
+		"build-debug": "npm run build -- --mode development --env debug",
+		"build-edge-watch": "npm run build-debug -- --env devtoolsBaseUri=http://localhost:3000/vscode_app.html",
+		"build-watch": "npm run build -- --mode development && npm run watch",
+		"watch-wp": "webpack --watch"
 	},
-	"extensionKind": [
-		"ui"
-	]
+	"sideEffects": false
 }
