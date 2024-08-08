@@ -610,8 +610,8 @@
 	},
 	"dependencies": {
 		"bufferutil": "4.0.8",
-		"lit-html": "3.1.4",
-		"puppeteer-core": "22.15.0",
+		"lit-html": "3.2.0",
+		"puppeteer-core": "23.0.1",
 		"utf-8-validate": "6.0.4",
 		"ws": "8.18.0",
 		"xmlhttprequest": "1.8.0"
@@ -619,7 +619,7 @@
 	"description": "Use the Microsoft Edge Tools from within VS Code to see your site's runtime HTML structure, alter its layout, fix styling issues as well as see your site's network requests.",
 	"devDependencies": {
 		"@types/fs-extra": "11.0.4",
-		"@types/node": "22.0.2",
+		"@types/node": "22.1.0",
 		"@types/puppeteer-core": "7.0.4",
 		"@types/ws": "8.5.12",
 		"fs-extra": "11.2.0",
