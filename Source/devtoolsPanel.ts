@@ -159,6 +159,8 @@ export class DevToolsPanel {
         if (!ScreencastPanel.instance && vscode.debug.activeDebugSession?.name.includes(providedHeadlessDebugConfig.name)) {
             void vscode.commands.executeCommand('workbench.action.debug.stop');
         }
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         ScreencastPanel.instance && ScreencastPanel.instance.update();
     }
 
@@ -210,7 +212,7 @@ export class DevToolsPanel {
                         void vscode.commands.executeCommand(`${SETTINGS_VIEW_NAME}.toggleInspect`, { enabled: true });
                     }
                 }
-            } catch (e) {
+            } catch {
                 // Ignore
             }
         }
@@ -404,12 +406,40 @@ export class DevToolsPanel {
     private onSocketDevToolsConnection(success: string) {
         if (success === 'true') {
             void this.context.globalState.update('fallbackRevision', this.currentRevision);
+            this.context.globalState.update('retryAttemptToLoadCDN', '1');
         } else {
-            // Retry connection with fallback.
-            const fallbackRevision = this.context.globalState.get<string>('fallbackRevision') ?? '';
+            let retryNumber: number;
+            try {
+                retryNumber = parseInt(this.context.globalState.get<string>('retryAttemptToLoadCDN') || '1', 10);
+            } catch {
+                retryNumber = 1;
+            }
+
+            let fallbackRevision;
+            switch (retryNumber) {
+                case 1: {
+                    // Always try the latest specified revision first, this will keep it updated.
+                    fallbackRevision = CDN_FALLBACK_REVISION;
+                    this.context.globalState.update('retryAttemptToLoadCDN', ++retryNumber);
+                    break;
+                }
+                case 2: {
+                     // Retry connection with latest well known fallback that this environment knows.
+                    fallbackRevision = this.context.globalState.get<string>('fallbackRevision') ?? '';
+                    this.context.globalState.update('retryAttemptToLoadCDN', ++retryNumber);
+                    break;
+                }
+                default: {
+                    // Could not find suitable version.
+                    this.context.globalState.update('retryAttemptToLoadCDN', '1');
+                    return;
+                }
+            }
+
             if (this.currentRevision) {
                 this.telemetryReporter.sendTelemetryEvent('websocket/failedConnection', {revision: this.currentRevision});
             }
+
             this.setCdnParameters({revision: fallbackRevision, isHeadless: this.isHeadless});
         }
     }
@@ -446,7 +476,7 @@ export class DevToolsPanel {
                 const oldSourePath = sourcePath;
                 sourcePath = addEntrypointIfNeeded(sourcePath, this.config.defaultEntrypoint);
                 appendedEntryPoint = oldSourePath !== sourcePath;
-            } catch (e) {
+            } catch {
                 await ErrorReporter.showInformationDialog({
                     errorCode: ErrorCodes.Error,
                     title: 'Unable to open file in editor.',
@@ -576,6 +606,8 @@ export class DevToolsPanel {
             });
             panel.iconPath = vscode.Uri.joinPath(context.extensionUri, 'icon.png');
             DevToolsPanel.instance = new DevToolsPanel(panel, context, telemetryReporter, targetUrl, config);
+
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
             ScreencastPanel.instance && ScreencastPanel.instance.update();
         }
     }
