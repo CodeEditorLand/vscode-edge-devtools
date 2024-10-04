@@ -1,5 +1,5 @@
 export const enum ErrorCodes {
-  Error,
-  Warning,
-  Informational
+	Error,
+	Warning,
+	Informational,
 }
