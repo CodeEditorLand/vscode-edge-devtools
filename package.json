@@ -610,8 +610,8 @@
 	},
 	"dependencies": {
 		"bufferutil": "4.0.8",
-		"lit-html": "3.2.0",
-		"puppeteer-core": "23.5.0",
+		"lit-html": "3.2.1",
+		"puppeteer-core": "23.5.1",
 		"utf-8-validate": "6.0.4",
 		"ws": "8.18.0",
 		"xmlhttprequest": "1.8.0"
