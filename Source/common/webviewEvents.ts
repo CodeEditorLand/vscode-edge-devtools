@@ -1,86 +1,117 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-export type WebviewEvent = 'getState' | 'getUrl' | 'openInEditor' | 'cssMirrorContent' | 'ready' | 'setState' | 'telemetry' | 'websocket'
-| 'getVscodeSettings' | 'copyText' | 'focusEditor' | 'focusEditorGroup' | 'openUrl' | 'toggleScreencast' | 'toggleInspect' | 'replayConsoleMessages'
-| 'devtoolsConnection' | 'toggleCSSMirrorContent' | 'writeToClipboard' | 'readClipboard';
+export type WebviewEvent =
+	| "getState"
+	| "getUrl"
+	| "openInEditor"
+	| "cssMirrorContent"
+	| "ready"
+	| "setState"
+	| "telemetry"
+	| "websocket"
+	| "getVscodeSettings"
+	| "copyText"
+	| "focusEditor"
+	| "focusEditorGroup"
+	| "openUrl"
+	| "toggleScreencast"
+	| "toggleInspect"
+	| "replayConsoleMessages"
+	| "devtoolsConnection"
+	| "toggleCSSMirrorContent"
+	| "writeToClipboard"
+	| "readClipboard";
 export const webviewEventNames: WebviewEvent[] = [
-    'getState',
-    'getUrl',
-    'openInEditor',
-    'cssMirrorContent',
-    'ready',
-    'setState',
-    'telemetry',
-    'websocket',
-    'getVscodeSettings',
-    'copyText',
-    'focusEditor',
-    'focusEditorGroup',
-    'openUrl',
-    'toggleScreencast',
-    'toggleInspect',
-    'replayConsoleMessages',
-    'devtoolsConnection',
-    'toggleCSSMirrorContent',
-    'writeToClipboard',
-    'readClipboard',
+	"getState",
+	"getUrl",
+	"openInEditor",
+	"cssMirrorContent",
+	"ready",
+	"setState",
+	"telemetry",
+	"websocket",
+	"getVscodeSettings",
+	"copyText",
+	"focusEditor",
+	"focusEditorGroup",
+	"openUrl",
+	"toggleScreencast",
+	"toggleInspect",
+	"replayConsoleMessages",
+	"devtoolsConnection",
+	"toggleCSSMirrorContent",
+	"writeToClipboard",
+	"readClipboard",
 ];
 
-export type FrameToolsEvent = 'sendMessageToBackend' | 'openInNewTab' | 'recordEnumeratedHistogram' |
-'recordPerformanceHistogram' | 'reportError' | 'openInEditor' | 'cssMirrorContent' | 'toggleScreencast' | 'replayConsoleMessages' | 'toggleCSSMirrorContent';
+export type FrameToolsEvent =
+	| "sendMessageToBackend"
+	| "openInNewTab"
+	| "recordEnumeratedHistogram"
+	| "recordPerformanceHistogram"
+	| "reportError"
+	| "openInEditor"
+	| "cssMirrorContent"
+	| "toggleScreencast"
+	| "replayConsoleMessages"
+	| "toggleCSSMirrorContent";
 export const FrameToolsEventNames: FrameToolsEvent[] = [
-    'sendMessageToBackend',
-    'openInNewTab',
-    'openInEditor',
-    'cssMirrorContent',
-    'recordEnumeratedHistogram',
-    'recordPerformanceHistogram',
-    'reportError',
-    'toggleScreencast',
-    'replayConsoleMessages',
-    'toggleCSSMirrorContent',
+	"sendMessageToBackend",
+	"openInNewTab",
+	"openInEditor",
+	"cssMirrorContent",
+	"recordEnumeratedHistogram",
+	"recordPerformanceHistogram",
+	"reportError",
+	"toggleScreencast",
+	"replayConsoleMessages",
+	"toggleCSSMirrorContent",
 ];
 
-export type WebSocketEvent = 'open' | 'close' | 'error' | 'message';
+export type WebSocketEvent = "open" | "close" | "error" | "message";
 export const webSocketEventNames: WebSocketEvent[] = [
-    'open',
-    'close',
-    'error',
-    'message',
+	"open",
+	"close",
+	"error",
+	"message",
 ];
 
-export type TelemetryEvent = 'enumerated' | 'performance' | 'error';
+export type TelemetryEvent = "enumerated" | "performance" | "error";
 
-export interface ITelemetryMeasures { [key: string]: number; }
-export interface ITelemetryProps { [key: string]: string; }
+export interface ITelemetryMeasures {
+	[key: string]: number;
+}
+export interface ITelemetryProps {
+	[key: string]: string;
+}
 
 export interface ITelemetryDataNumber {
-    event: 'enumerated' | 'performance';
-    name: string;
-    data: number;
+	event: "enumerated" | "performance";
+	name: string;
+	data: number;
 }
 export interface ITelemetryDataObject {
-    event: 'error' | 'screencast';
-    name: string;
-    data: Record<string, unknown>;
+	event: "error" | "screencast";
+	name: string;
+	data: Record<string, unknown>;
 }
 export type TelemetryData = ITelemetryDataNumber | ITelemetryDataObject;
 
 export interface IOpenEditorData {
-    url: string;
-    line: number;
-    column: number;
-    ignoreTabChanges: boolean;
+	url: string;
+	line: number;
+	column: number;
+	ignoreTabChanges: boolean;
 }
 
 export interface ICssMirrorContentData {
-    url: string;
-    newContent: string;
+	url: string;
+	newContent: string;
 }
 
 export interface IToggleCSSMirrorContentData {
-    isEnabled: boolean;
+	isEnabled: boolean;
 }
 
 /**
@@ -90,16 +121,17 @@ export interface IToggleCSSMirrorContentData {
  * @param emit The emit callback to invoke with the event and args
  */
 export function parseMessageFromChannel(
-    message: string,
-    emit: (eventName: WebviewEvent, args: string) => boolean): boolean {
-    for (const e of webviewEventNames) {
-        if (message.substr(0, e.length) === e && message[e.length] === ':') {
-            emit(e, message.substr(e.length + 1));
-            return true;
-        }
-    }
+	message: string,
+	emit: (eventName: WebviewEvent, args: string) => boolean,
+): boolean {
+	for (const e of webviewEventNames) {
+		if (message.substr(0, e.length) === e && message[e.length] === ":") {
+			emit(e, message.substr(e.length + 1));
+			return true;
+		}
+	}
 
-    return false;
+	return false;
 }
 
 /**
@@ -113,9 +145,10 @@ export function parseMessageFromChannel(
  * @param origin The origin (if any) to use with the postMessage call
  */
 export function encodeMessageForChannel(
-    postMessageCallback: (message: string) => void,
-    eventType: WebviewEvent,
-    args?: unknown): void {
-    const message = `${eventType}:${JSON.stringify(args)}`;
-    postMessageCallback(message);
+	postMessageCallback: (message: string) => void,
+	eventType: WebviewEvent,
+	args?: unknown,
+): void {
+	const message = `${eventType}:${JSON.stringify(args)}`;
+	postMessageCallback(message);
 }
