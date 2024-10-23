@@ -619,7 +619,7 @@
 	"description": "Use the Microsoft Edge Tools from within VS Code to see your site's runtime HTML structure, alter its layout, fix styling issues as well as see your site's network requests.",
 	"devDependencies": {
 		"@types/fs-extra": "11.0.4",
-		"@types/node": "22.7.7",
+		"@types/node": "22.7.9",
 		"@types/ws": "8.5.12",
 		"fs-extra": "11.2.0",
 		"jest-environment-jsdom": "29.7.0",
