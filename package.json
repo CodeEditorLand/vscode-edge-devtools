@@ -612,7 +612,7 @@
 		"bufferutil": "4.0.8",
 		"lit-html": "3.2.1",
 		"puppeteer-core": "23.6.1",
-		"utf-8-validate": "6.0.4",
+		"utf-8-validate": "6.0.5",
 		"ws": "8.18.0",
 		"xmlhttprequest": "1.8.0"
 	},
