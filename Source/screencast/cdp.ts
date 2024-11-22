@@ -35,9 +35,11 @@ export class ScreencastCDPConnection {
 			parseMessageFromChannel(e.data, (eventName, args) => {
 				if (eventName === "websocket") {
 					const { message } = JSON.parse(args) as { message: string };
+
 					if (message) {
 						// Handle event responses
 						const messageObj = JSON.parse(message) as CdpMessage;
+
 						for (const callback of this.eventCallbackMap.get(
 							messageObj.method,
 						) || []) {
@@ -47,6 +49,7 @@ export class ScreencastCDPConnection {
 						const methodCallback = this.methodCallbackMap.get(
 							messageObj.id,
 						);
+
 						if (methodCallback) {
 							methodCallback(messageObj.result);
 							this.methodCallbackMap.delete(messageObj.id);
@@ -69,6 +72,7 @@ export class ScreencastCDPConnection {
 				}
 				if (eventName === "toggleInspect") {
 					const { enabled } = JSON.parse(args) as { enabled: string };
+
 					for (const callback of this.eventCallbackMap.get(
 						"DevTools.toggleInspect",
 					) || []) {
@@ -79,6 +83,7 @@ export class ScreencastCDPConnection {
 					const { clipboardText } = JSON.parse(args) as {
 						clipboardText: string;
 					};
+
 					for (const callback of this.eventCallbackMap.get(
 						"readClipboard",
 					) || []) {
@@ -97,11 +102,13 @@ export class ScreencastCDPConnection {
 		isCutOrCopy?: boolean,
 	): void {
 		const id = this.nextId++;
+
 		const cdpMessage: CdpMessage = {
 			id: id,
 			method,
 			params,
 		};
+
 		if (callback) {
 			this.methodCallbackMap.set(id, callback);
 		}

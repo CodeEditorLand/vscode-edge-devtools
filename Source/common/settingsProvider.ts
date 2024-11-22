@@ -36,17 +36,23 @@ export class SettingsProvider {
 		const themeSetting = vscode.workspace
 			.getConfiguration()
 			.get("workbench.colorTheme") as string;
+
 		let theme = SUPPORTED_THEMES.get(themeSetting);
+
 		if (!theme) {
 			switch (vscode.window.activeColorTheme.kind as number) {
 				case 1: // Light theme
 				case 4: // Light high contrast theme
 					theme = "default";
+
 					break;
+
 				case 2: // Dark theme
 				case 3: // Dark high contrast theme
 					theme = "dark";
+
 					break;
+
 				default:
 					theme = "systemPreferred";
 			}
@@ -56,7 +62,9 @@ export class SettingsProvider {
 
 	getHeadlessSettings(): boolean {
 		const settings = vscode.workspace.getConfiguration(SETTINGS_STORE_NAME);
+
 		const isHeadless: boolean = settings.get("headless") || false;
+
 		return isHeadless;
 	}
 

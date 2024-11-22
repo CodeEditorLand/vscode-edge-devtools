@@ -15,6 +15,7 @@ import {
 declare const acquireVsCodeApi: () => {
 	postMessage(message: unknown, args?: any | undefined): void;
 };
+
 const vscode = acquireVsCodeApi();
 
 /**
@@ -52,6 +53,7 @@ export class MessageRouter {
 			(messageEvent) => {
 				const fromExtension =
 					messageEvent.origin.startsWith("vscode-webview://");
+
 				if (!fromExtension) {
 					// Send message from DevTools to Extension
 					this.onMessageFromFrame(
@@ -85,14 +87,20 @@ export class MessageRouter {
 			case "openInEditor":
 				const [url, line, column, ignoreTabChanges] = args;
 				this.openInEditor(url, line, column, ignoreTabChanges);
+
 				return true;
+
 			case "cssMirrorContent":
 				const [cssUrl = url, newContent] = args;
 				this.cssMirrorContent(cssUrl, newContent);
+
 				return true;
+
 			case "openInNewTab":
 				this.openInNewTab(args[0]);
+
 				return true;
+
 			case "recordEnumeratedHistogram":
 				const [actionName, actionCode, bucketSize] = args;
 				this.recordEnumeratedHistogram(
@@ -100,11 +108,15 @@ export class MessageRouter {
 					actionCode,
 					bucketSize,
 				);
+
 				return true;
+
 			case "recordPerformanceHistogram":
 				const [histogramName, duration] = args;
 				this.recordPerformanceHistogram(histogramName, duration);
+
 				return true;
+
 			case "reportError":
 				const [
 					type,
@@ -124,21 +136,31 @@ export class MessageRouter {
 					lineno,
 					colno,
 				);
+
 				return true;
+
 			case "sendMessageToBackend":
 				const [cdpMessage] = args;
 				this.sendMessageToBackend(cdpMessage);
+
 				return true;
+
 			case "toggleScreencast":
 				this.toggleScreencast();
+
 				return true;
+
 			case "replayConsoleMessages":
 				this.replayConsoleMessages();
+
 				return true;
+
 			case "toggleCSSMirrorContent":
 				const [isEnabled] = args;
 				this.toggleCSSMirrorContent(isEnabled);
+
 				return true;
+
 			default:
 				// TODO: handle other types of messages from devtools
 				return false;
@@ -154,6 +176,7 @@ export class MessageRouter {
 			message: string;
 		};
 		this.fireWebSocketCallback(event, message);
+
 		return true;
 	}
 
@@ -308,6 +331,7 @@ export class MessageRouter {
 		if (this.devtoolsActionReceived || !this.errorMessageDiv) {
 			this.sendDevToolsConnectionStatus(true);
 			this.fallbackAttempt = false;
+
 			return;
 		}
 		// Show the error message if DevTools has failed to record an action

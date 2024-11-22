@@ -24,6 +24,7 @@ export class ScreencastInputHandler {
 	emitMouseEvent(mouseEvent: MouseEvent, scale: number): void {
 		const eventType =
 			MouseEventMap[mouseEvent.type as keyof typeof MouseEventMap];
+
 		if (!eventType) {
 			return;
 		}
@@ -46,6 +47,7 @@ export class ScreencastInputHandler {
 			keyboardEvent.altKey ||
 			keyboardEvent.metaKey
 		);
+
 		if (hasNonShiftModifier || keyboardEvent.key === "Tab") {
 			// Prevent keyboard shortcuts from acting on the screencast image.
 			keyboardEvent.preventDefault();
@@ -104,8 +106,10 @@ export class ScreencastInputHandler {
 
 	emitTouchFromMouseEvent(mouseEvent: MouseEvent, scale: number): void {
 		const buttons = ["none", "left", "middle", "right"];
+
 		const eventType =
 			MouseEventMap[mouseEvent.type as keyof typeof MouseEventMap];
+
 		if (!eventType) {
 			return;
 		}
@@ -128,6 +132,7 @@ export class ScreencastInputHandler {
 			button: MouseButtonMap[mouseEvent.button],
 			clickCount: 0,
 		};
+
 		if (mouseEvent.type === "wheel") {
 			const wheelEvent = mouseEvent as WheelEvent;
 			params.deltaX = wheelEvent.deltaX;

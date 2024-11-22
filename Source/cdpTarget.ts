@@ -33,6 +33,7 @@ export class CDPTarget extends vscode.TreeItem {
 		this.contextValue = this.propertyName
 			? "cdpTargetProperty"
 			: "cdpTarget";
+
 		const treeItemLabel = `${this.label}: ${this.description}.`;
 
 		// collapsibleState = 1 means the treeItem is the base CDPTarget treeItem.
@@ -94,6 +95,7 @@ export class CDPTarget extends vscode.TreeItem {
 		// Populate the child nodes if we don't have any yet
 		if (!this.propertyName && this.children.length === 0) {
 			this.children = [];
+
 			for (const i of Object.getOwnPropertyNames(this.targetJson)) {
 				this.children.push(new CDPTarget(this.targetJson, i));
 			}

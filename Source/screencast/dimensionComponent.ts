@@ -84,6 +84,7 @@ export default class DimensionComponent {
 		}
 
 		const oldWidth = this.width;
+
 		const oldHeight = this.height;
 
 		if (e.target === this.textInputWidth.value) {
@@ -141,6 +142,7 @@ export default class DimensionComponent {
 
 	static render(props: DimensionComponentProps, elementId: string) {
 		const dimensionContainer = document.getElementById(elementId);
+
 		if (dimensionContainer) {
 			component = new DimensionComponent(props, dimensionContainer);
 		}

@@ -32,6 +32,7 @@ export interface IDevToolsSettings {
 	hostname: string;
 	port: number;
 	useHttps: boolean;
+
 	defaultUrl: string;
 	userDataDir: string;
 	timeout: number;
@@ -51,6 +52,7 @@ export interface IUserConfig {
 	sourceMaps: boolean;
 	timeout: number;
 	type: string;
+
 	defaultEntrypoint: string;
 }
 
@@ -62,6 +64,7 @@ export interface IRuntimeConfig {
 	isJsDebugProxiedCDPConnection: boolean;
 	useLocalEdgeWatch: boolean;
 	devtoolsBaseUri?: string;
+
 	defaultEntrypoint?: string;
 	browserFlavor: BrowserFlavor;
 }
@@ -110,6 +113,7 @@ export const SETTINGS_DEFAULT_ATTACH_INTERVAL = 200;
 export const SETTINGS_DEFAULT_ENTRY_POINT = "index.html";
 
 const WIN_APP_DATA = process.env.LOCALAPPDATA || "/";
+
 const msEdgeBrowserMapping: Map<BrowserFlavor, IBrowserPath> = new Map<
 	BrowserFlavor,
 	IBrowserPath
@@ -163,6 +167,7 @@ export function fetchUri(
 ): Promise<string> {
 	return new Promise((resolve, reject) => {
 		const parsedUrl = url.parse(uri);
+
 		const get = parsedUrl.protocol === "https:" ? https.get : http.get;
 		options = {
 			rejectUnauthorized: false,
@@ -207,7 +212,9 @@ export function fixRemoteWebSocket(
 ): IRemoteTargetJson {
 	if (target.webSocketDebuggerUrl) {
 		const re = /ws:\/\/([^/]+)\/?/;
+
 		const addressMatch = re.exec(target.webSocketDebuggerUrl);
+
 		if (addressMatch) {
 			const replaceAddress = `${remoteAddress}:${remotePort}`;
 			target.webSocketDebuggerUrl = target.webSocketDebuggerUrl.replace(
@@ -237,11 +244,13 @@ export async function getListOfTargets(
 	const protocol = useHttps ? "https" : "http";
 
 	let jsonResponse = null;
+
 	for (const endpoint of ["/json/list", "/json"]) {
 		try {
 			jsonResponse = await checkDiscoveryEndpoint(
 				`${protocol}://${hostname}:${port}${endpoint}`,
 			);
+
 			if (jsonResponse) {
 				break;
 			}
@@ -252,6 +261,7 @@ export async function getListOfTargets(
 	}
 
 	let result: IRemoteTargetJson[] = [];
+
 	try {
 		result = jsonResponse
 			? (JSON.parse(jsonResponse) as IRemoteTargetJson[])
@@ -278,18 +288,23 @@ export function getRemoteEndpointSettings(
 	config: Partial<IUserConfig> = {},
 ): IDevToolsSettings {
 	const settings = vscode.workspace.getConfiguration(SETTINGS_STORE_NAME);
+
 	const hostname: string =
 		config.hostname ||
 		settings.get("hostname") ||
 		SETTINGS_DEFAULT_HOSTNAME;
+
 	const port: number =
 		config.port || settings.get("port") || SETTINGS_DEFAULT_PORT;
+
 	const useHttps: boolean =
 		config.useHttps ||
 		settings.get("useHttps") ||
 		SETTINGS_DEFAULT_USE_HTTPS;
+
 	const defaultUrl: string =
 		config.url || settings.get("defaultUrl") || SETTINGS_DEFAULT_URL;
+
 	const timeout: number =
 		config.timeout ||
 		settings.get("timeout") ||
@@ -300,12 +315,15 @@ export function getRemoteEndpointSettings(
 	// Or if it is not defined and they are not using a custom browser path (such as electron).
 	// This matches the behavior of the chrome and edge debug extensions.
 	const browserPathSet = config.browserFlavor || "Default";
+
 	let userDataDir: string | boolean | undefined;
+
 	if (typeof config.userDataDir !== "undefined") {
 		userDataDir = config.userDataDir;
 	} else {
 		const settingsUserDataDir: string | boolean | undefined =
 			settings.get("userDataDir");
+
 		if (typeof settingsUserDataDir !== "undefined") {
 			userDataDir = settingsUserDataDir;
 		}
@@ -320,6 +338,7 @@ export function getRemoteEndpointSettings(
 			os.tmpdir(),
 			`vscode-edge-devtools-userdatadir_${port}`,
 		);
+
 		if (!fse.pathExistsSync(userDataDir)) {
 			fse.mkdirSync(userDataDir);
 		}
@@ -337,6 +356,7 @@ export function getRemoteEndpointSettings(
 export function getActiveDebugSessionId(): string | undefined {
 	// Attempt to attach to active CDP target
 	const session = vscode.debug.activeDebugSession;
+
 	return session ? session.id : undefined;
 }
 
@@ -354,12 +374,14 @@ export async function getJsDebugCDPProxyWebsocketUrl(
 		// TODO: update to query location when workspace support added
 		// https://github.com/microsoft/vscode-edge-devtools/issues/383
 		const forwardToUi = true;
+
 		const addr: IRequestCDPProxyResult | undefined =
 			await vscode.commands.executeCommand(
 				"extension.js-debug.requestCDPProxy",
 				debugSessionId,
 				forwardToUi,
 			);
+
 		if (addr) {
 			return `ws://${addr.host}:${addr.port}${addr.path || ""}`;
 		}
@@ -418,6 +440,7 @@ export function setCSSMirrorContentEnabled(
  */
 export function getPlatform(): Platform {
 	const platform = os.platform();
+
 	return platform === "darwin"
 		? "OSX"
 		: platform === "win32"
@@ -434,6 +457,7 @@ export async function getBrowserPath(
 	config: Partial<IUserConfig> = {},
 ): Promise<string> {
 	const settings = vscode.workspace.getConfiguration(SETTINGS_STORE_NAME);
+
 	const flavor: BrowserFlavor | undefined =
 		config.browserFlavor || settings.get("browserFlavor");
 
@@ -497,6 +521,7 @@ export async function launchBrowser(
 		args,
 		headless,
 	});
+
 	return browserInstance;
 }
 
@@ -516,9 +541,11 @@ export async function openNewTab(
 		const json = await fetchUri(
 			`http://${hostname}:${port}/json/new?${tabUrl ? tabUrl : ""}`,
 		);
+
 		const target: IRemoteTargetJson | undefined = JSON.parse(json) as
 			| IRemoteTargetJson
 			| undefined;
+
 		return target;
 	} catch {
 		return undefined;
@@ -544,29 +571,36 @@ export function getRuntimeConfig(
 	config: Partial<IUserConfig> = {},
 ): IRuntimeConfig {
 	const settings = vscode.workspace.getConfiguration(SETTINGS_STORE_NAME);
+
 	const pathMapping =
 		config.pathMapping ||
 		settings.get("pathMapping") ||
 		SETTINGS_DEFAULT_PATH_MAPPING;
+
 	const browserFlavor =
 		config.browserFlavor || settings.get("browserFlavor") || "Default";
+
 	const sourceMapPathOverrides =
 		config.sourceMapPathOverrides ||
 		settings.get("sourceMapPathOverrides") ||
 		SETTINGS_DEFAULT_PATH_OVERRIDES;
+
 	const webRoot =
 		config.webRoot || settings.get("webRoot") || SETTINGS_DEFAULT_WEB_ROOT;
+
 	const defaultEntrypoint =
 		config.defaultEntrypoint ||
 		settings.get("defaultEntrypoint") ||
 		SETTINGS_DEFAULT_ENTRY_POINT;
 
 	let sourceMaps = SETTINGS_DEFAULT_SOURCE_MAPS;
+
 	if (typeof config.sourceMaps !== "undefined") {
 		sourceMaps = config.sourceMaps;
 	} else {
 		const settingsSourceMaps: boolean | undefined =
 			settings.get("sourceMaps");
+
 		if (typeof settingsSourceMaps !== "undefined") {
 			sourceMaps = settingsSourceMaps;
 		}
@@ -574,12 +608,14 @@ export function getRuntimeConfig(
 
 	// Resolve the paths with the webRoot set by the user
 	const resolvedOverrides: IStringDictionary<string> = {};
+
 	for (const pattern in sourceMapPathOverrides) {
 		if (sourceMapPathOverrides.hasOwnProperty(pattern)) {
 			const replacePattern = replaceWebRootInSourceMapPathOverridesEntry(
 				webRoot,
 				pattern,
 			);
+
 			const replacePatternValue =
 				replaceWebRootInSourceMapPathOverridesEntry(
 					webRoot,
@@ -598,6 +634,7 @@ export function getRuntimeConfig(
 
 	// replace workspaceFolder with local paths
 	const resolvedMappingOverrides: IStringDictionary<string> = {};
+
 	for (const customPathMapped in pathMapping) {
 		if (pathMapping.hasOwnProperty(customPathMapped)) {
 			resolvedMappingOverrides[customPathMapped] =
@@ -608,6 +645,7 @@ export function getRuntimeConfig(
 	}
 
 	const resolvedWebRoot = replaceWorkSpaceFolderPlaceholder(webRoot);
+
 	return {
 		pathMapping: resolvedMappingOverrides,
 		sourceMapPathOverrides: resolvedOverrides,
@@ -633,6 +671,7 @@ export function replaceWebRootInSourceMapPathOverridesEntry(
 ): string {
 	if (webRoot) {
 		const webRootIndex = entry.indexOf("${webRoot}");
+
 		if (webRootIndex === 0) {
 			return entry.replace("${webRoot}", webRoot);
 		}
@@ -652,6 +691,7 @@ export function addEntrypointIfNeeded(
 	defaultEntrypoint: string,
 ): string {
 	const url = new URL(sourcePath);
+
 	if (!url.pathname || url.pathname === "/") {
 		return sourcePath.endsWith("/")
 			? `${sourcePath}${defaultEntrypoint}`
@@ -684,11 +724,13 @@ export function applyPathMapping(
 		const rightPattern = pathMapping[leftPattern];
 
 		const asterisks = leftPattern.match(/\*/g) || [];
+
 		if (asterisks.length > 1) {
 			continue;
 		}
 
 		const replacePatternAsterisks = rightPattern.match(/\*/g) || [];
+
 		if (replacePatternAsterisks.length > asterisks.length) {
 			continue;
 		}
@@ -698,11 +740,15 @@ export function applyPathMapping(
 			leftPattern,
 			"/*",
 		);
+
 		const leftRegexSegment = escapedLeftPattern
 			.replace(/\*/g, "(.*)")
 			.replace(/\\\\/g, "/");
+
 		const leftRegex = new RegExp(`^${leftRegexSegment}$`, "i");
+
 		const overridePatternMatches = leftRegex.exec(forwardSlashSourcePath);
+
 		if (!overridePatternMatches) {
 			continue;
 		}
@@ -710,6 +756,7 @@ export function applyPathMapping(
 		// Grab the value of the wildcard from the match above, replace the wildcard in the
 		// replacement pattern, and return the result.
 		const wildcardValue = overridePatternMatches[1];
+
 		let mappedPath = rightPattern.replace(/\*/g, wildcardValue);
 
 		// handling WSL case.
@@ -719,6 +766,7 @@ export function applyPathMapping(
 
 		mappedPath = debugCore.utils.properJoin(mappedPath); // Fix any ..'s
 		mappedPath = replaceWorkSpaceFolderPlaceholder(mappedPath);
+
 		return mappedPath;
 	}
 
@@ -733,6 +781,7 @@ export function applyPathMapping(
 export function isLocalResource(path: string): boolean {
 	try {
 		const pathURL = new URL(path);
+
 		if (pathURL.protocol && !pathURL.protocol.includes("http")) {
 			return true;
 		}
@@ -748,7 +797,9 @@ export function isLocalResource(path: string): boolean {
  */
 export function isHeadlessEnabled(): boolean {
 	const settings = vscode.workspace.getConfiguration(SETTINGS_STORE_NAME);
+
 	const headless: boolean = settings.get("headless") || false;
+
 	return headless;
 }
 
@@ -757,7 +808,9 @@ export function isHeadlessEnabled(): boolean {
  */
 export function getBrowserArgs(): string[] {
 	const settings = vscode.workspace.getConfiguration(SETTINGS_STORE_NAME);
+
 	const browserArgs: string[] = settings.get("browserArgs") || [];
+
 	return browserArgs.map((arg) => arg.trim());
 }
 
@@ -769,6 +822,7 @@ export function getBrowserArgs(): string[] {
  */
 function replaceWorkSpaceFolderPlaceholder(customPath: string) {
 	let parsedPath = customPath;
+
 	if (
 		vscode.workspace.workspaceFolders &&
 		vscode.workspace.workspaceFolders[0].uri.toString()
@@ -778,10 +832,12 @@ function replaceWorkSpaceFolderPlaceholder(customPath: string) {
 		 * one currently open by the user.
 		 */
 		parsedPath = vscode.workspace.workspaceFolders[0].uri.toString();
+
 		const replacedPath = customPath.replace(
 			"${workspaceFolder}",
 			parsedPath,
 		);
+
 		return debugCore.utils.canonicalizeUrl(replacedPath);
 	}
 	return parsedPath;
@@ -803,10 +859,12 @@ async function verifyFlavorPath(
 	platform: Platform,
 ): Promise<string> {
 	let item = msEdgeBrowserMapping.get(flavor || "Default");
+
 	if (!item) {
 		// if no flavor is specified search for any path present.
 		for (item of msEdgeBrowserMapping.values()) {
 			const result = await findFlavorPath(item);
+
 			if (result) {
 				return result;
 			}
@@ -861,18 +919,25 @@ export function reportExtensionSettings(
 	const extensionSettingsList = Object.entries(
 		vscode.workspace.getConfiguration(SETTINGS_STORE_NAME),
 	).splice(4) as Array<ExtensionSettings>;
+
 	const settings = vscode.workspace.getConfiguration(SETTINGS_STORE_NAME);
+
 	const changedSettingsMap: Map<string, string> = new Map<string, string>();
+
 	for (const currentSetting of extensionSettingsList) {
 		const settingName: string = currentSetting[0];
+
 		const settingValue:
 			| boolean
 			| string
 			| { [key: string]: string }
 			| undefined = currentSetting[1];
+
 		const settingInspect = settings.inspect(settingName);
+
 		if (settingInspect) {
 			const defaultValue = settingInspect.defaultValue;
+
 			if (settingValue !== undefined && settingValue !== defaultValue) {
 				if (
 					defaultValue &&
@@ -885,6 +950,7 @@ export function reportExtensionSettings(
 								settingName,
 								JSON.stringify(settingValue),
 							);
+
 							break;
 						}
 					}
@@ -916,19 +982,23 @@ export function reportChangedExtensionSetting(
 	const extensionSettingsList = Object.entries(
 		vscode.workspace.getConfiguration(SETTINGS_STORE_NAME),
 	).splice(4) as Array<ExtensionSettings>;
+
 	for (const currentSetting of extensionSettingsList) {
 		const settingName: string = currentSetting[0];
+
 		const settingValue:
 			| boolean
 			| string
 			| { [key: string]: string }
 			| undefined = currentSetting[1];
+
 		if (
 			event.affectsConfiguration(`${SETTINGS_STORE_NAME}.${settingName}`)
 		) {
 			if (settingName !== undefined) {
 				if (settingValue !== undefined) {
 					const telemetryObject: { [key: string]: string } = {};
+
 					const objString =
 						typeof settingValue !== "object"
 							? settingValue.toString()
@@ -949,10 +1019,14 @@ export function reportUrlType(
 	telemetryReporter: Readonly<TelemetryReporter>,
 ): void {
 	const localhostPattern = /^https?:\/\/localhost:/;
+
 	const ipPattern =
 		/(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/;
+
 	const filePattern = /^file:\/\//;
+
 	let urlType;
+
 	if (localhostPattern.exec(url) || ipPattern.exec(url)) {
 		urlType = "localhost";
 	} else if (filePattern.exec(url)) {
@@ -972,6 +1046,7 @@ export async function reportFileExtensionTypes(
 		"**/*.*",
 		"**/node_modules/**",
 	);
+
 	const extensionMap: Map<string, number> = new Map<string, number>([
 		["html", 0],
 		["css", 0],
@@ -983,16 +1058,20 @@ export async function reportFileExtensionTypes(
 		["mjs", 0],
 		["other", 0],
 	]);
+
 	for (const file of files) {
 		const extension: string | undefined = file.path.split(".").pop();
+
 		if (extension) {
 			if (extensionMap.has(extension)) {
 				const currentValue = extensionMap.get(extension);
+
 				if (currentValue !== undefined) {
 					extensionMap.set(extension, currentValue + 1);
 				}
 			} else {
 				const otherCount = extensionMap.get("other");
+
 				if (otherCount !== undefined) {
 					extensionMap.set("other", otherCount + 1);
 				}
@@ -1040,6 +1119,7 @@ export function checkWithinHoverRange(
 
 export function getSupportedStaticAnalysisFileTypes(): string[] {
 	const supportedFileTypes = [];
+
 	for (const event of packageJson.activationEvents) {
 		if (event.startsWith("onLanguage:")) {
 			supportedFileTypes.push(event.substring(11));

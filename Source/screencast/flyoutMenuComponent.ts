@@ -65,6 +65,7 @@ export default class FlyoutMenuComponent {
 	) => {
 		return () => {
 			fn(value);
+
 			if (this.#globalSelectedItem) {
 				this.#globalSelectedItem = value;
 				this.#update();
@@ -76,6 +77,7 @@ export default class FlyoutMenuComponent {
 
 	#onClick = () => {
 		const thisComponent = this.#buttonRef.value;
+
 		const boundingRect = thisComponent!.getBoundingClientRect();
 
 		let styles = {
@@ -101,11 +103,13 @@ export default class FlyoutMenuComponent {
 		}
 
 		render(this.#menuTemplate(styles), document.body);
+
 		document.body.addEventListener("mousedown", this.#closeMenu);
 	};
 
 	#closeMenu = () => {
 		document.getElementById("popover")!.style.display = "none";
+
 		document.body.removeEventListener("mousedown", this.#closeMenu);
 	};
 
@@ -115,6 +119,7 @@ export default class FlyoutMenuComponent {
 	) {
 		const renderedMenuItems = menuItemSection.menuItems.map((item, i) => {
 			let isSelected = false;
+
 			if (this.#globalSelectedItem) {
 				isSelected = this.#globalSelectedItem === item.value;
 			} else {
@@ -148,9 +153,11 @@ export default class FlyoutMenuComponent {
 
 	#menuTemplate(styles: StyleInfo) {
 		let partials = [];
+
 		for (let i = 0; i < this.#menuItemSections.length; i++) {
 			const section = this.#menuItemSections[i];
 			partials.push(this.#menuSectionTemplate(section, i));
+
 			if (i !== this.#menuItemSections.length - 1) {
 				partials.push(html`<hr />`);
 			}
@@ -199,6 +206,7 @@ export default class FlyoutMenuComponent {
 
 	static render(props: FlyoutMenuProps, elementId: string) {
 		const flyoutMenuContainer = document.getElementById(elementId);
+
 		if (flyoutMenuContainer) {
 			new FlyoutMenuComponent(props, flyoutMenuContainer);
 		}

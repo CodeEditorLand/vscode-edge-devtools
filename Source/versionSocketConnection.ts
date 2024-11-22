@@ -54,6 +54,7 @@ export class BrowserVersionDetectionSocket extends EventEmitter {
 			method: "Browser.getVersion",
 			params: {},
 		};
+
 		if (this.socket) {
 			this.socket.send(JSON.stringify(requestMessage));
 		}
@@ -68,6 +69,7 @@ export class BrowserVersionDetectionSocket extends EventEmitter {
 		this.emit("setCdnParameters", this.calcBrowserRevision(data));
 		// Dispose socket after version is determined
 		this.dispose();
+
 		return;
 	}
 
@@ -84,14 +86,19 @@ export class BrowserVersionDetectionSocket extends EventEmitter {
 		}
 		// product in the form [Edg, HeadlessEdg]/#.#.#.#
 		const productParts = (data.result.product as string).split("/");
+
 		const isHeadless = productParts[0].includes("Headless");
+
 		const versionNum = productParts[1];
+
 		const currentVersion = versionNum
 			.split(".")
 			.map((part) => Number(part));
+
 		const minSupportedVersion = MIN_SUPPORTED_VERSION.split(".").map(
 			(part) => Number(part),
 		);
+
 		const currentRevision = data.result.revision || "";
 
 		for (let i = 0; i < currentVersion.length; i++) {

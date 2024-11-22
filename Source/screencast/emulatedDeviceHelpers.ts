@@ -12,15 +12,20 @@ export function groupEmulatedDevicesByType(): Map<string, MenuItem[]> {
 			name: device.title,
 			value: device.title,
 		};
+
 		const groupedDeviceList = groupedDevices.get(device.type);
+
 		if (!groupedDeviceList) {
 			groupedDevices.set(device.type, [deviceEntry]);
+
 			continue;
 		}
 		let shouldAdd = true;
+
 		for (const entry of groupedDeviceList) {
 			if (entry.name === device.title) {
 				shouldAdd = false;
+
 				break;
 			}
 		}

@@ -57,11 +57,14 @@ import {
 } from "./utils";
 
 let telemetryReporter: Readonly<TelemetryReporter>;
+
 let browserInstance: Browser;
+
 let cdpTargetsProvider: CDPTargetsProvider;
 
 // Keep a reference to the client to stop it when deactivating.
 let client: LanguageClient;
+
 const languageServerName = "Microsoft Edge Tools";
 
 type DiagnosticCodeType = { value: string; target: vscode.Uri };
@@ -78,6 +81,7 @@ export function activate(context: vscode.ExtensionContext): void {
 				const documentDiagnostics = vscode.languages.getDiagnostics(
 					document.uri,
 				);
+
 				for (const diagnostic of documentDiagnostics) {
 					if (
 						diagnostic.source === languageServerName &&
@@ -183,13 +187,16 @@ export function activate(context: vscode.ExtensionContext): void {
 					telemetryReporter.sendTelemetryEvent(
 						"command/attach/noTarget",
 					);
+
 					return;
 				}
 				telemetryReporter.sendTelemetryEvent("user/buttonPress", {
 					"VSCode.buttonCode": buttonCode.attachToTarget,
 				});
 				telemetryReporter.sendTelemetryEvent("view/devtools");
+
 				const runtimeConfig = getRuntimeConfig();
+
 				if (isJsDebugProxiedCDPConnection) {
 					runtimeConfig.isJsDebugProxiedCDPConnection = true;
 				}
@@ -216,6 +223,7 @@ export function activate(context: vscode.ExtensionContext): void {
 						"command/screencast/target",
 						{ message: errorMessage },
 					);
+
 					return;
 				}
 				telemetryReporter.sendTelemetryEvent("user/buttonPress", {
@@ -280,6 +288,7 @@ export function activate(context: vscode.ExtensionContext): void {
 					telemetryReporter.sendTelemetryEvent(
 						"command/close/noTarget",
 					);
+
 					return;
 				}
 				telemetryReporter.sendTelemetryEvent("user/buttonPress", {
@@ -291,7 +300,9 @@ export function activate(context: vscode.ExtensionContext): void {
 
 				// update with the latest information, in case user has navigated to a different page via browser.
 				cdpTargetsProvider.refresh();
+
 				const normalizedPath = new URL(target.description).toString();
+
 				if (browserInstance) {
 					const browserPages = await browserInstance.pages();
 
@@ -299,6 +310,7 @@ export function activate(context: vscode.ExtensionContext): void {
 					// instance alive.
 					if (!browserPages || browserPages.length === 0) {
 						void browserInstance.close();
+
 						return;
 					}
 
@@ -311,6 +323,7 @@ export function activate(context: vscode.ExtensionContext): void {
 						) {
 							// fire and forget
 							void page.close();
+
 							break;
 						}
 					}
@@ -351,9 +364,11 @@ export function activate(context: vscode.ExtensionContext): void {
 					"VSCode.buttonCode": buttonCode.launchProject,
 				});
 				LaunchConfigManager.instance.updateLaunchConfig();
+
 				if (vscode.workspace.workspaceFolders) {
 					const workspaceFolder =
 						vscode.workspace.workspaceFolders[0];
+
 					if (LaunchConfigManager.instance.isValidLaunchConfig()) {
 						void vscode.debug.startDebugging(
 							workspaceFolder,
@@ -460,6 +475,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
 	const settingsConfig =
 		vscode.workspace.getConfiguration(SETTINGS_STORE_NAME);
+
 	if (settingsConfig.get("webhint")) {
 		void startWebhint(context);
 	}
@@ -480,7 +496,9 @@ export function activate(context: vscode.ExtensionContext): void {
 
 export async function launchHtml(fileUri: vscode.Uri): Promise<void> {
 	const edgeDebugConfig = providedHeadlessDebugConfig;
+
 	const devToolsAttachConfig = providedLaunchDevToolsConfig;
+
 	if (!vscode.env.remoteName) {
 		edgeDebugConfig.url = `file://${fileUri.fsPath}`;
 		devToolsAttachConfig.url = `file://${fileUri.fsPath}`;
@@ -494,7 +512,9 @@ export async function launchHtml(fileUri: vscode.Uri): Promise<void> {
 		const url = `file://${vscode.env.remoteName}.localhost/${fileUri.authority.split("+")[1]}/${fileUri.fsPath.replace(/\\/g, "/")}`;
 		edgeDebugConfig.url = url;
 		devToolsAttachConfig.url = url;
+
 		const { port, userDataDir } = getRemoteEndpointSettings();
+
 		const browserPath = await getBrowserPath();
 		await launchBrowser(
 			browserPath,
@@ -513,6 +533,7 @@ export async function launchScreencast(
 	fileUri: vscode.Uri,
 ): Promise<void> {
 	const edgeDebugConfig = providedHeadlessDebugConfig;
+
 	if (!vscode.env.remoteName) {
 		edgeDebugConfig.url = `file://${fileUri.fsPath}`;
 		void vscode.debug
@@ -522,7 +543,9 @@ export async function launchScreencast(
 		// Parse the filename from the remoteName, file authority and path e.g. file://wsl.localhost/ubuntu-20.04/test/index.html
 		const url = `file://${vscode.env.remoteName}.localhost/${fileUri.authority.split("+")[1]}/${fileUri.fsPath.replace(/\\/g, "/")}`;
 		edgeDebugConfig.url = url;
+
 		const { port, userDataDir } = getRemoteEndpointSettings();
+
 		const browserPath = await getBrowserPath();
 		await launchBrowser(
 			browserPath,
@@ -536,10 +559,13 @@ export async function launchScreencast(
 
 async function startWebhint(context: vscode.ExtensionContext): Promise<void> {
 	const args = [context.globalStoragePath, languageServerName];
+
 	const module = context.asAbsolutePath(
 		"node_modules/vscode-webhint/dist/src/server.js",
 	);
+
 	const transport = TransportKind.ipc;
+
 	const serverOptions: ServerOptions = {
 		debug: {
 			args,
@@ -563,6 +589,7 @@ async function startWebhint(context: vscode.ExtensionContext): Promise<void> {
 		middleware: {
 			executeCommand: (command, args, next) => {
 				const hintName = args[0] as string;
+
 				const featureName = args[1] as string;
 
 				if (!telemetryReporter) {
@@ -575,6 +602,7 @@ async function startWebhint(context: vscode.ExtensionContext): Promise<void> {
 							"user/webhint/quickfix/disable-hint",
 							{ hint: hintName },
 						);
+
 						break;
 					}
 					case "vscode-webhint/ignore-feature-project": {
@@ -582,12 +610,14 @@ async function startWebhint(context: vscode.ExtensionContext): Promise<void> {
 							"user/webhint/quickfix/disable-rule",
 							{ hint: hintName, value: featureName },
 						);
+
 						break;
 					}
 					case "vscode-webhint/edit-hintrc-project": {
 						telemetryReporter.sendTelemetryEvent(
 							"user/webhint/quickfix/edit-hintrc",
 						);
+
 						break;
 					}
 					case "vscode-webhint/ignore-browsers-project": {
@@ -609,6 +639,7 @@ async function startWebhint(context: vscode.ExtensionContext): Promise<void> {
 							"user/webhint/quickfix/apply-code-fix",
 							{ value: featureName },
 						);
+
 						break;
 					}
 				}
@@ -627,6 +658,7 @@ async function startWebhint(context: vscode.ExtensionContext): Promise<void> {
 	// Listen for notification that the webhint install failed.
 	const installFailedNotification: typeof installFailed =
 		"vscode-webhint/install-failed";
+
 	const disableInstallFailedNotification = vscode.workspace
 		.getConfiguration(SETTINGS_STORE_NAME)
 		.get("webhintInstallNotification");
@@ -635,6 +667,7 @@ async function startWebhint(context: vscode.ExtensionContext): Promise<void> {
 			telemetryReporter = createTelemetryReporter(context);
 		}
 		telemetryReporter.sendTelemetryEvent("user/webhint/install-failed");
+
 		if (!disableInstallFailedNotification) {
 			const message =
 				"Ensure `node` and `npm` are installed to enable automatically reporting issues in source files pertaining to accessibility, compatibility, security, and more.";
@@ -703,13 +736,17 @@ export async function attach(
 		viaConfig: `${!!config}`,
 		withTargetUrl: `${!!attachUrl}`,
 	};
+
 	const { hostname, port, useHttps, timeout } =
 		getRemoteEndpointSettings(config);
 
 	// Get the attach target and keep trying until reaching timeout
 	const startTime = Date.now();
+
 	let responseArray: IRemoteTargetJson[] = [];
+
 	let exceptionStack: unknown;
+
 	do {
 		try {
 			// Keep trying to attach to the list endpoint until timeout
@@ -725,11 +762,13 @@ export async function attach(
 		if (responseArray.length > 0) {
 			// Try to match the given target with the list of targets we received from the endpoint
 			let targetWebsocketUrl = "";
+
 			if (attachUrl) {
 				// Match the targets using the edge debug adapter logic
 				let matchedTargets:
 					| debugCore.chromeConnection.ITarget[]
 					| undefined;
+
 				try {
 					matchedTargets = debugCore.chromeUtils.getMatchingTargets(
 						responseArray as unknown as debugCore.chromeConnection.ITarget[],
@@ -769,7 +808,9 @@ export async function attach(
 			if (targetWebsocketUrl) {
 				// Auto connect to found target
 				useRetry = false;
+
 				const runtimeConfig = getRuntimeConfig(config);
+
 				if (screencastOnly) {
 					ScreencastPanel.createOrShow(
 						context,
@@ -796,6 +837,7 @@ export async function attach(
 				// Create the list of items to show with fixed websocket addresses
 				const items = responseArray.map((i: IRemoteTargetJson) => {
 					i = fixRemoteWebSocket(hostname, port, i);
+
 					return {
 						description: i.url,
 						detail: i.webSocketDebuggerUrl,
@@ -805,8 +847,10 @@ export async function attach(
 
 				// Show the target list and allow the user to select one
 				const selection = await vscode.window.showQuickPick(items);
+
 				if (selection && selection.detail) {
 					const runtimeConfig = getRuntimeConfig(config);
+
 					if (screencastOnly) {
 						ScreencastPanel.createOrShow(
 							context,
@@ -853,6 +897,7 @@ export async function attachToCurrentDebugTarget(
 	}
 
 	telemetryReporter.sendTelemetryEvent("command/attachToCurrentDebugTarget");
+
 	const sessionId = debugSessionId || getActiveDebugSessionId();
 
 	if (!sessionId) {
@@ -862,6 +907,7 @@ export async function attachToCurrentDebugTarget(
 			{ message: errorMessage },
 		);
 		void vscode.window.showErrorMessage(errorMessage);
+
 		return;
 	}
 
@@ -878,6 +924,7 @@ export async function attachToCurrentDebugTarget(
 		telemetryReporter.sendTelemetryEvent(
 			"command/attachToCurrentDebugTarget/devtools",
 		);
+
 		const runtimeConfig = getRuntimeConfig(config);
 		runtimeConfig.isJsDebugProxiedCDPConnection = true;
 		DevToolsPanel.createOrShow(
@@ -907,7 +954,9 @@ export async function launch(
 	}
 
 	const settings = vscode.workspace.getConfiguration(SETTINGS_STORE_NAME);
+
 	const browserType: string = settings.get("browserFlavor") || "Default";
+
 	const isHeadless: string = settings.get("headless") || "false";
 
 	const telemetryProps = {
@@ -919,14 +968,18 @@ export async function launch(
 
 	const { hostname, port, defaultUrl, userDataDir } =
 		getRemoteEndpointSettings(config);
+
 	const url = launchUrl || defaultUrl;
+
 	const target = await openNewTab(hostname, port, url);
+
 	if (target && target.webSocketDebuggerUrl) {
 		// Show the devtools
 		telemetryReporter.sendTelemetryEvent(
 			"command/launch/devtools",
 			telemetryProps,
 		);
+
 		const runtimeConfig = getRuntimeConfig(config);
 		DevToolsPanel.createOrShow(
 			context,
@@ -937,6 +990,7 @@ export async function launch(
 	} else {
 		// Launch a new instance
 		const browserPath = await getBrowserPath(config);
+
 		if (!browserPath) {
 			telemetryReporter.sendTelemetryEvent(
 				"command/launch/error/browser_not_found",
@@ -948,6 +1002,7 @@ export async function launch(
 					"and that you have selected 'default' or the appropriate version of Microsoft Edge " +
 					"in the extension settings panel.",
 			);
+
 			return;
 		}
 		// Here we grab the last part of the path (using either forward or back slashes to account for mac/win),
@@ -955,11 +1010,14 @@ export async function launch(
 		// If it is one of those names we use that, otherwise we default it to "other".
 		// Then we upload just one of those 3 names to telemetry.
 		const exeName = browserPath.split(/\\|\//).pop();
+
 		if (!exeName) {
 			return;
 		}
 		const match = exeName.match(/(chrome|edge)/gi) || [];
+
 		const knownBrowser = match.length > 0 ? match[0] : "other";
+
 		const browserProps = { exe: `${knownBrowser?.toLowerCase()}` };
 		telemetryReporter.sendTelemetryEvent(
 			"command/launch/browser",
@@ -972,6 +1030,7 @@ export async function launch(
 			url,
 			userDataDir,
 		);
+
 		if (url !== SETTINGS_DEFAULT_URL) {
 			reportUrlType(url, telemetryReporter);
 		}

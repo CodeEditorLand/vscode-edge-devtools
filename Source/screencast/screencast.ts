@@ -261,7 +261,9 @@ export class Screencast {
 			this.screencastImage.addEventListener(eventName, (event) => {
 				const scale =
 					this.screencastImage.offsetWidth / this.emulatedWidth;
+
 				const mouseEvent = event as MouseEvent;
+
 				if (this.isTouchMode && !this.inspectMode) {
 					this.inputHandler.emitTouchFromMouseEvent(
 						mouseEvent,
@@ -298,12 +300,14 @@ export class Screencast {
 
 	private updateEmulation(): void {
 		const isTouch = this.isTouchMode;
+
 		const deviceMetricsParams = {
 			width: this.emulatedWidth,
 			height: this.emulatedHeight,
 			deviceScaleFactor: 0,
 			mobile: isTouch,
 		};
+
 		const touchEmulationParams = {
 			enabled: isTouch,
 			maxTouchPoints: 1,
@@ -328,7 +332,9 @@ export class Screencast {
 
 	private onDeviceSelected = (value: string) => {
 		const isResponsive = value === "responsive";
+
 		let isTouchMode = false;
+
 		if (isResponsive) {
 			this.emulatedWidth = this.mainWrapper.offsetWidth;
 			this.emulatedHeight =
@@ -338,6 +344,7 @@ export class Screencast {
 			this.deviceUserAgent = "";
 		} else {
 			const device = getEmulatedDeviceDetails(value);
+
 			if (!device) {
 				return;
 			}
@@ -422,6 +429,7 @@ export class Screencast {
 		this.mediaFeatureConfig.forEach((value, name) => {
 			features.push({ name, value });
 		});
+
 		const payload = {
 			features,
 			media: this.emulatedMedia,
@@ -483,6 +491,7 @@ export class Screencast {
 
 	private onUrlKeyDown(event: KeyboardEvent): void {
 		let url = this.urlInput.value;
+
 		if (event.key === "Enter" && url) {
 			if (url.startsWith("/") || url[1] === ":") {
 				try {
@@ -505,10 +514,12 @@ export class Screencast {
 
 	private onScreencastFrame({ data, sessionId }: any): void {
 		const expectedRatio = this.emulatedWidth / this.emulatedHeight;
+
 		const actualRatio =
 			this.screencastImage.naturalWidth /
 			this.screencastImage.naturalHeight;
 		this.screencastImage.src = `data:image/png;base64,${data}`;
+
 		if (expectedRatio !== actualRatio) {
 			this.updateEmulation();
 		}

@@ -157,6 +157,7 @@ export class DevToolsPanel {
 
 		// Gets an array of functions that will be tried to get the right Devtools revision.
 		this.fallbackChain = this.determineVersionFallback();
+
 		if (this.fallbackChain.length > 0) {
 			this.getFallbackRevisionFunction =
 				this.fallbackChain.pop() || this.getFallbackRevisionFunction;
@@ -214,8 +215,10 @@ export class DevToolsPanel {
 	 */
 	determineVersionFallback() {
 		const browserFlavor = this.config.browserFlavor;
+
 		const storedRevision =
 			this.context.globalState.get<string>("fallbackRevision") || "";
+
 		const callWrapper = (revision: string) => {
 			this.setCdnParameters({ revision, isHeadless: this.isHeadless });
 		};
@@ -263,8 +266,10 @@ export class DevToolsPanel {
 
 		this.panel.dispose();
 		this.panelSocket.dispose();
+
 		if (this.timeStart !== null) {
 			const timeEnd = performance.now();
+
 			const sessionTime = timeEnd - this.timeStart;
 			this.telemetryReporter.sendTelemetryEvent(
 				"websocket/dispose",
@@ -276,6 +281,7 @@ export class DevToolsPanel {
 
 		while (this.disposables.length) {
 			const d = this.disposables.pop();
+
 			if (d) {
 				d.dispose();
 			}
@@ -299,6 +305,7 @@ export class DevToolsPanel {
 			case "close":
 			case "error":
 				this.telemetryReporter.sendTelemetryEvent(`websocket/${e}`);
+
 				break;
 		}
 		if (
@@ -356,6 +363,7 @@ export class DevToolsPanel {
 				const cdpMsg = JSON.parse(
 					(JSON.parse(message) as { message: string }).message,
 				) as { method: string; params: { mode: string } };
+
 				if (cdpMsg.method === "Overlay.setInspectMode") {
 					if (cdpMsg.params.mode === "none") {
 						void vscode.commands.executeCommand(
@@ -390,6 +398,7 @@ export class DevToolsPanel {
 
 	private onSocketFocusEditor(message: string) {
 		const { next } = JSON.parse(message) as { next: boolean };
+
 		if (next) {
 			void vscode.commands.executeCommand("workbench.action.nextEditor");
 		} else {
@@ -401,6 +410,7 @@ export class DevToolsPanel {
 
 	private onSocketFocusEditorGroup(message: string) {
 		const { next } = JSON.parse(message) as { next: boolean };
+
 		if (next) {
 			void vscode.commands.executeCommand(
 				"workbench.action.focusNextGroup",
@@ -414,6 +424,7 @@ export class DevToolsPanel {
 
 	private toggleScreencast() {
 		const websocketUrl = this.targetUrl;
+
 		const isJsDebugProxiedCDPConnection =
 			this.config.isJsDebugProxiedCDPConnection;
 		void vscode.commands.executeCommand(
@@ -436,6 +447,7 @@ export class DevToolsPanel {
 					undefined,
 					measures,
 				);
+
 				break;
 			}
 
@@ -447,6 +459,7 @@ export class DevToolsPanel {
 					`devtools/${telemetry.name}`,
 					properties,
 				);
+
 				break;
 			}
 
@@ -459,6 +472,7 @@ export class DevToolsPanel {
 					`devtools/${telemetry.name}`,
 					properties,
 				);
+
 				break;
 			}
 		}
@@ -466,6 +480,7 @@ export class DevToolsPanel {
 
 	private onSocketGetState(message: string) {
 		const { id } = JSON.parse(message) as { id: number };
+
 		const preferences: Record<string, unknown> =
 			this.context.workspaceState.get(SETTINGS_PREF_NAME) ||
 			SETTINGS_PREF_DEFAULTS;
@@ -494,6 +509,7 @@ export class DevToolsPanel {
 			name: string;
 			value: string;
 		};
+
 		const allPref: Record<string, unknown> =
 			this.context.workspaceState.get(SETTINGS_PREF_NAME) || {};
 		allPref[name] = value;
@@ -505,6 +521,7 @@ export class DevToolsPanel {
 		const request = JSON.parse(message) as { id: number; url: string };
 
 		let content = "";
+
 		try {
 			content = await fetchUri(request.url);
 		} catch {
@@ -545,6 +562,7 @@ export class DevToolsPanel {
 		}
 
 		const uri = await this.parseUrlToUri(url);
+
 		if (uri) {
 			void this.openEditorFromUri(uri, line, column);
 		} else {
@@ -571,20 +589,27 @@ export class DevToolsPanel {
 		// Finally open and edit the document if it exists
 		if (uri) {
 			const textEditor = await this.openEditorFromUri(uri);
+
 			if (textEditor) {
 				const fullRange = this.getDocumentFullRange(textEditor);
+
 				const mirroredCSSText = this.mirroredCSS.get(url);
+
 				const textEditorCSSText = textEditor.document.getText();
+
 				const isSnapshotSameAsLastMirroredCSS =
 					mirroredCSSText === textEditorCSSText;
+
 				let canMirror =
 					!textEditor.document.isDirty ||
 					isSnapshotSameAsLastMirroredCSS;
+
 				if (!canMirror) {
 					// Standardize line endings to ignore CRLF/LF differences
 					const standardizedMirroredCSStext =
 						mirroredCSSText &&
 						mirroredCSSText.replace(/\r\n/g, "\n");
+
 					const standardizedTextEditorCSSText =
 						textEditorCSSText &&
 						textEditorCSSText.replace(/\r\n/g, "\n");
@@ -642,14 +667,17 @@ export class DevToolsPanel {
 	): Promise<vscode.TextEditor | undefined> {
 		try {
 			const doc = await vscode.workspace.openTextDocument(uri);
+
 			const viewColumn =
 				this.panel.viewColumn === vscode.ViewColumn.One
 					? vscode.ViewColumn.Beside
 					: vscode.ViewColumn.One;
+
 			const selection =
 				line !== undefined && column !== undefined
 					? new vscode.Range(line, column, line, column)
 					: undefined;
+
 			return await vscode.window.showTextDocument(doc, {
 				preserveFocus: true,
 				viewColumn,
@@ -669,20 +697,25 @@ export class DevToolsPanel {
 
 	private getDocumentFullRange(textEditor: vscode.TextEditor): vscode.Range {
 		const firstLine = textEditor.document.lineAt(0);
+
 		const lastLine = textEditor.document.lineAt(
 			textEditor.document.lineCount - 1,
 		);
+
 		const range = new vscode.Range(
 			firstLine.range.start,
 			lastLine.range.end,
 		);
+
 		return range;
 	}
 
 	private async parseUrlToUri(url: string): Promise<vscode.Uri | undefined> {
 		// Convert the devtools url into a local one
 		let sourcePath = url;
+
 		let appendedEntryPoint = false;
+
 		if (this.config.defaultEntrypoint) {
 			// If sourcePath is just a baseUrl, append to default entrypoint
 			try {
@@ -698,6 +731,7 @@ export class DevToolsPanel {
 					title: "Unable to open file in editor.",
 					message: `'${sourcePath}' is not a valid url.`,
 				});
+
 				return;
 			}
 		}
@@ -722,6 +756,7 @@ export class DevToolsPanel {
 		if (!localSource.origin) {
 			// Convert the workspace path into a VS Code url
 			const uri = vscode.Uri.file(localSource.path);
+
 			return uri;
 		}
 		// If failed to resolve origin, it's possible entrypoint needs to be updated.
@@ -752,17 +787,21 @@ export class DevToolsPanel {
 	private getCdnHtmlForWebview() {
 		// Default to config provided base uri
 		const cdnBaseUri = this.config.devtoolsBaseUri || this.devtoolsBaseUri;
+
 		const hostPath = vscode.Uri.file(
 			path.join(this.extensionPath, "out", "host", "host.bundle.js"),
 		);
+
 		const hostUri = this.panel.webview.asWebviewUri(hostPath);
 
 		const stylesPath = vscode.Uri.file(
 			path.join(this.extensionPath, "out", "common", "styles.css"),
 		);
+
 		const stylesUri = this.panel.webview.asWebviewUri(stylesPath);
 
 		const theme = SettingsProvider.instance.getThemeFromUserSetting();
+
 		const cssMirrorContent = getCSSMirrorContentEnabled(this.context);
 
 		// the added fields for "Content-Security-Policy" allow resource loading for other file types

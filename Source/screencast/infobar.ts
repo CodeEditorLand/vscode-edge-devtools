@@ -53,6 +53,7 @@ export default class InfobarComponent {
 
 	static render(props: InfobarProps, elementId: string) {
 		const currentContainer = document.getElementById(elementId);
+
 		if (currentContainer) {
 			new InfobarComponent(props, currentContainer);
 		}

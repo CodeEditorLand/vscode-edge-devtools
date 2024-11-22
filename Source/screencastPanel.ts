@@ -72,6 +72,7 @@ export class ScreencastPanel {
 			this.dispose();
 			this.panelSocket.dispose();
 			this.recordEnumeratedHistogram("DevTools.ScreencastToggle", 0);
+
 			const sessionDuration = Date.now() - this.screencastStartTime;
 			this.recordPerformanceHistogram(
 				"DevTools.ScreencastDuration",
@@ -125,6 +126,7 @@ export class ScreencastPanel {
 
 		this.panel.dispose();
 		this.panelSocket.dispose();
+
 		if (
 			!DevToolsPanel.instance &&
 			vscode.debug.activeDebugSession?.name.includes(
@@ -137,6 +139,7 @@ export class ScreencastPanel {
 
 	private toggleDevTools() {
 		const websocketUrl = this.targetUrl;
+
 		if (DevToolsPanel.instance) {
 			DevToolsPanel.instance.dispose();
 		} else {
@@ -180,7 +183,9 @@ export class ScreencastPanel {
 				"screencast.bundle.js",
 			),
 		);
+
 		const inspectorUri = this.panel.webview.asWebviewUri(inspectorPath);
+
 		const codiconsUri = this.panel.webview.asWebviewUri(
 			vscode.Uri.joinPath(
 				this.context.extensionUri,
@@ -190,6 +195,7 @@ export class ScreencastPanel {
 				"codicon.css",
 			),
 		);
+
 		const cssPath = this.panel.webview.asWebviewUri(
 			vscode.Uri.joinPath(
 				this.context.extensionUri,
@@ -197,6 +203,7 @@ export class ScreencastPanel {
 				"view.css",
 			),
 		);
+
 		const view = new ScreencastView(
 			this.panel.webview.cspSource,
 			cssPath,
@@ -204,11 +211,13 @@ export class ScreencastPanel {
 			inspectorUri,
 			!!DevToolsPanel.instance,
 		);
+
 		return view.render();
 	}
 
 	private onSocketTelemetry(message: string) {
 		const telemetry: TelemetryData = JSON.parse(message) as TelemetryData;
+
 		if (telemetry.event !== "screencast") {
 			return;
 		}
@@ -245,6 +254,7 @@ export class ScreencastPanel {
 		isJsDebugProxiedCDPConnection = false,
 	): void {
 		const column = vscode.ViewColumn.Beside;
+
 		if (ScreencastPanel.instance) {
 			ScreencastPanel.instance.dispose();
 		} else {

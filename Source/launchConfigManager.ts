@@ -12,6 +12,7 @@ export type CompoundConfig = {
 };
 
 const settings = vscode.workspace.getConfiguration(SETTINGS_STORE_NAME);
+
 const defaultUrl: string = settings.get("defaultUrl") || SETTINGS_DEFAULT_URL;
 
 export const providedDebugConfig: vscode.DebugConfiguration = {
@@ -91,6 +92,7 @@ export class LaunchConfigManager {
 
 	getLaunchConfig(): string {
 		this.updateLaunchConfig();
+
 		return this.launchConfig;
 	}
 
@@ -104,20 +106,25 @@ export class LaunchConfigManager {
 			);
 			this.launchConfig = "None";
 			this.isValidConfig = false;
+
 			return;
 		}
 
 		// Check if there's a launch.json file
 		const workspaceUri = vscode.workspace.workspaceFolders[0].uri;
+
 		const filePath = `${workspaceUri.fsPath}/.vscode/launch.json`;
+
 		if (fse.pathExistsSync(filePath)) {
 			// Check if there is a supported debug config
 			const configs = vscode.workspace
 				.getConfiguration("launch", workspaceUri)
 				.get("configurations") as vscode.DebugConfiguration[];
+
 			const compoundConfigs = vscode.workspace
 				.getConfiguration("launch", workspaceUri)
 				.get("compounds") as CompoundConfig[];
+
 			if (
 				this.getMissingConfigs(configs, extensionConfigs).length ===
 					0 &&
@@ -133,6 +140,7 @@ export class LaunchConfigManager {
 				);
 				this.launchConfig = extensionCompoundConfigs[0].name; // extensionCompoundConfigs[0].name => 'Launch Edge Headless and attach DevTools'
 				this.isValidConfig = true;
+
 				return;
 			}
 			void vscode.commands.executeCommand(
@@ -142,6 +150,7 @@ export class LaunchConfigManager {
 			);
 			this.launchConfig = "Unsupported";
 			this.isValidConfig = false;
+
 			return;
 		}
 		void vscode.commands.executeCommand(
@@ -162,11 +171,13 @@ export class LaunchConfigManager {
 			void vscode.window.showErrorMessage(
 				"Cannot configure launch.json for an empty workspace. Please open a folder in the editor.",
 			);
+
 			return;
 		}
 
 		// Create ./.vscode/launch.json if it doesn't already exist
 		const workspaceUri = vscode.workspace.workspaceFolders[0].uri;
+
 		const relativePath = "/.vscode/launch.json";
 		fse.ensureFileSync(workspaceUri.fsPath + relativePath);
 
@@ -175,6 +186,7 @@ export class LaunchConfigManager {
 			"launch",
 			workspaceUri,
 		);
+
 		let configs = launchJson.get(
 			"configurations",
 		) as vscode.DebugConfiguration[];
@@ -187,6 +199,7 @@ export class LaunchConfigManager {
 			configs,
 			extensionConfigs,
 		);
+
 		for (const missingConfig of missingConfigs) {
 			configs.push(missingConfig as vscode.DebugConfiguration);
 		}
@@ -198,10 +211,12 @@ export class LaunchConfigManager {
 			compounds,
 			extensionCompoundConfigs,
 		) as CompoundConfig[];
+
 		const missingCompoundConfigs = this.getMissingConfigs(
 			compounds,
 			extensionCompoundConfigs,
 		);
+
 		for (const missingCompoundConfig of missingCompoundConfigs) {
 			compounds.push(missingCompoundConfig as CompoundConfig);
 		}
@@ -211,8 +226,11 @@ export class LaunchConfigManager {
 		let launchText = fse
 			.readFileSync(workspaceUri.fsPath + relativePath)
 			.toString();
+
 		const re = /("url":.*startpage[\/\\]+index\.html",)/gm;
+
 		const match = re.exec(launchText);
+
 		const instructions =
 			" // Provide your project's url to finish configuring";
 		launchText = launchText.replace(
@@ -238,10 +256,12 @@ export class LaunchConfigManager {
 		extensionConfigs: Record<string, unknown>[],
 	): Record<string, unknown>[] {
 		const configs = [];
+
 		const extensionConfigMap: Map<
 			string,
 			Record<string, unknown>
 		> = new Map();
+
 		for (const extensionConfig of extensionConfigs) {
 			extensionConfigMap.set(
 				extensionConfig.name as string,
@@ -252,6 +272,7 @@ export class LaunchConfigManager {
 			const duplicateNameConfig = extensionConfigMap.get(
 				userConfig.name as string,
 			);
+
 			const addConfig = duplicateNameConfig
 				? duplicateNameConfig
 				: userConfig;
@@ -265,11 +286,14 @@ export class LaunchConfigManager {
 		extensionConfigs: Record<string, unknown>[],
 	): Record<string, unknown>[] {
 		const missingConfigs: Record<string, unknown>[] = [];
+
 		for (const extensionConfig of extensionConfigs) {
 			let configExists = false;
+
 			for (const userConfig of userConfigs) {
 				if (this.compareConfigs(userConfig, extensionConfig)) {
 					configExists = true;
+
 					break;
 				}
 			}
@@ -296,6 +320,7 @@ export class LaunchConfigManager {
 				const userPropertySet = new Set(
 					userConfig[property] as Array<string>,
 				);
+
 				for (const extensionConfigProperty of extensionConfig[
 					property
 				] as Array<string>) {

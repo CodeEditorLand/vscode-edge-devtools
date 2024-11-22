@@ -38,6 +38,7 @@ export class JsDebugProxyPanelSocket extends PanelSocket {
 				],
 			},
 		};
+
 		if (this.socket) {
 			this.socket.send(JSON.stringify(registrationMessage));
 		}

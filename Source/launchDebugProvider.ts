@@ -62,6 +62,7 @@ export class LaunchDebugProvider implements vscode.DebugConfigurationProvider {
 			debugWithoutConfig
 		) {
 			const targetUri: string = this.getUrlFromConfig(folder, config);
+
 			if (config.request && config.request === "attach") {
 				this.telemetryReporter.sendTelemetryEvent("debug/attach");
 				void this.attach(this.context, targetUri, userConfig, true);
@@ -92,6 +93,7 @@ export class LaunchDebugProvider implements vscode.DebugConfigurationProvider {
 
 		if (config.file) {
 			outUrlString = config.file as string;
+
 			if (folder) {
 				outUrlString = outUrlString.replace(
 					"${workspaceFolder}",

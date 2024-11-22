@@ -49,13 +49,16 @@ export class CDPTargetsProvider implements vscode.TreeDataProvider<CDPTarget> {
 		if (!element) {
 			// Get a list of the targets available
 			const { hostname, port, useHttps } = getRemoteEndpointSettings();
+
 			const responseArray = await getListOfTargets(
 				hostname,
 				port,
 				useHttps,
 			);
+
 			if (Array.isArray(responseArray)) {
 				await this.clearFaviconResourceDirectory();
+
 				if (responseArray.length > 0) {
 					const responseIconPromiseArray: Array<
 						Promise<IRemoteTargetJson>
@@ -66,6 +69,7 @@ export class CDPTargetsProvider implements vscode.TreeDataProvider<CDPTarget> {
 							port,
 							target,
 						);
+
 						if (
 							actualTarget.type === "page" ||
 							actualTarget.type === "iframe"
@@ -93,6 +97,7 @@ export class CDPTargetsProvider implements vscode.TreeDataProvider<CDPTarget> {
 					const iconResultsArray = await Promise.all(
 						responseIconPromiseArray,
 					);
+
 					for (const actualTarget of iconResultsArray) {
 						if (isLocalResource(actualTarget.faviconUrl)) {
 							targets.push(
@@ -154,9 +159,12 @@ export class CDPTargetsProvider implements vscode.TreeDataProvider<CDPTarget> {
 			"resources",
 			"favicons",
 		);
+
 		const files = await fs.promises.readdir(directory);
+
 		for (const file of files) {
 			const fileString = file.toString();
+
 			if (fileString !== ".gitkeep") {
 				await fs.promises.unlink(path.join(directory, fileString));
 			}
@@ -176,7 +184,9 @@ export class CDPTargetsProvider implements vscode.TreeDataProvider<CDPTarget> {
 		// urlMatch[1] = .microsoft.com/
 		// urlMatch[2] = microsoft
 		const urlMatch = faviconRegex.exec(actualTarget.url);
+
 		let filename;
+
 		if (urlMatch) {
 			filename = `${urlMatch[2]}Favicon.ico`;
 		} else {
