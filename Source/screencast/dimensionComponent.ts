@@ -12,6 +12,7 @@ interface DimensionComponentProps {
 }
 
 let component: DimensionComponent;
+
 export default class DimensionComponent {
 	textInputWidth = createRef();
 	textInputHeight = createRef();

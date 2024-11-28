@@ -25,6 +25,7 @@ const SUPPORTED_THEMES = new Map<string, string>([
 	["Kimbie Dark", "vscode-kimbie-dark"],
 	["Tomorrow Night Blue", "vscode-tomorrow-night-blue"],
 ]);
+
 export class SettingsProvider {
 	private static singletonInstance: SettingsProvider;
 

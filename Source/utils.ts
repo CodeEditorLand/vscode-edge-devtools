@@ -81,23 +81,34 @@ export interface IRequestCDPProxyResult {
 export type Platform = "Windows" | "OSX" | "Linux";
 
 export const SETTINGS_STORE_NAME = "vscode-edge-devtools";
+
 export const SETTINGS_DEFAULT_USE_HTTPS = false;
+
 export const SETTINGS_DEFAULT_HOSTNAME = "localhost";
+
 export const SETTINGS_DEFAULT_PORT = 9222;
+
 export const SETTINGS_DEFAULT_URL = path.resolve(
 	path.join(__dirname, "startpage", "index.html"),
 );
+
 export const SETTINGS_WEBVIEW_NAME = "Edge DevTools";
+
 export const SETTINGS_SCREENCAST_WEBVIEW_NAME = "Edge DevTools: Browser";
+
 export const SETTINGS_PREF_NAME = "devtools-preferences";
+
 export const SETTINGS_PREF_DEFAULTS = {
 	screencastEnabled: false,
 	uiTheme: '"dark"',
 };
+
 export const SETTINGS_VIEW_NAME = "vscode-edge-devtools-view";
+
 export const SETTINGS_DEFAULT_PATH_MAPPING: IStringDictionary<string> = {
 	"/": "${workspaceFolder}",
 };
+
 export const SETTINGS_DEFAULT_PATH_OVERRIDES: IStringDictionary<string> = {
 	"meteor://💻app/*": "${webRoot}/*",
 	"webpack:///*": "*",
@@ -106,10 +117,15 @@ export const SETTINGS_DEFAULT_PATH_OVERRIDES: IStringDictionary<string> = {
 	"webpack:///src/*": "${webRoot}/*",
 	"webpack://*": "${webRoot}/*",
 };
+
 export const SETTINGS_DEFAULT_WEB_ROOT = "${workspaceFolder}";
+
 export const SETTINGS_DEFAULT_SOURCE_MAPS = true;
+
 export const SETTINGS_DEFAULT_ATTACH_TIMEOUT = 10000;
+
 export const SETTINGS_DEFAULT_ATTACH_INTERVAL = 200;
+
 export const SETTINGS_DEFAULT_ENTRY_POINT = "index.html";
 
 const WIN_APP_DATA = process.env.LOCALAPPDATA || "/";

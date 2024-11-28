@@ -22,6 +22,7 @@ export type WebviewEvent =
 	| "toggleCSSMirrorContent"
 	| "writeToClipboard"
 	| "readClipboard";
+
 export const webviewEventNames: WebviewEvent[] = [
 	"getState",
 	"getUrl",
@@ -56,6 +57,7 @@ export type FrameToolsEvent =
 	| "toggleScreencast"
 	| "replayConsoleMessages"
 	| "toggleCSSMirrorContent";
+
 export const FrameToolsEventNames: FrameToolsEvent[] = [
 	"sendMessageToBackend",
 	"openInNewTab",
@@ -70,6 +72,7 @@ export const FrameToolsEventNames: FrameToolsEvent[] = [
 ];
 
 export type WebSocketEvent = "open" | "close" | "error" | "message";
+
 export const webSocketEventNames: WebSocketEvent[] = [
 	"open",
 	"close",

@@ -9,6 +9,7 @@ import {
 declare const acquireVsCodeApi: () => {
 	postMessage(message: unknown, args?: any | undefined): void;
 };
+
 export const vscode = acquireVsCodeApi();
 
 interface CdpMessage {
@@ -19,6 +20,7 @@ interface CdpMessage {
 }
 
 export type CdpEventCallback = (params: any) => void;
+
 export type CdpMethodCallback = (result: any) => void;
 
 export class ScreencastCDPConnection {
