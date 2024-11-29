@@ -26,8 +26,11 @@ const vscode = acquireVsCodeApi();
  */
 export class MessageRouter {
 	private toolsFrameWindow: Window | null | undefined;
+
 	private errorMessageDiv: HTMLElement | null | undefined;
+
 	private devtoolsActionReceived = false;
+
 	private fallbackAttempt = false;
 
 	constructor(webviewWindow: Window) {
@@ -35,6 +38,7 @@ export class MessageRouter {
 			this.toolsFrameWindow = (
 				document.getElementById("devtools-frame") as HTMLIFrameElement
 			).contentWindow;
+
 			this.toolsFrameWindow?.addEventListener("load", () => {
 				this.devtoolsActionReceived = true;
 			});
@@ -68,7 +72,9 @@ export class MessageRouter {
 						messageEvent.data,
 						extensionMessageCallback,
 					);
+
 					messageEvent.preventDefault();
+
 					messageEvent.stopImmediatePropagation();
 				}
 			},
@@ -86,12 +92,14 @@ export class MessageRouter {
 		switch (e) {
 			case "openInEditor":
 				const [url, line, column, ignoreTabChanges] = args;
+
 				this.openInEditor(url, line, column, ignoreTabChanges);
 
 				return true;
 
 			case "cssMirrorContent":
 				const [cssUrl = url, newContent] = args;
+
 				this.cssMirrorContent(cssUrl, newContent);
 
 				return true;
@@ -103,6 +111,7 @@ export class MessageRouter {
 
 			case "recordEnumeratedHistogram":
 				const [actionName, actionCode, bucketSize] = args;
+
 				this.recordEnumeratedHistogram(
 					actionName,
 					actionCode,
@@ -113,6 +122,7 @@ export class MessageRouter {
 
 			case "recordPerformanceHistogram":
 				const [histogramName, duration] = args;
+
 				this.recordPerformanceHistogram(histogramName, duration);
 
 				return true;
@@ -127,6 +137,7 @@ export class MessageRouter {
 					lineno,
 					colno,
 				] = args;
+
 				this.reportError(
 					type,
 					message,
@@ -141,6 +152,7 @@ export class MessageRouter {
 
 			case "sendMessageToBackend":
 				const [cdpMessage] = args;
+
 				this.sendMessageToBackend(cdpMessage);
 
 				return true;
@@ -157,6 +169,7 @@ export class MessageRouter {
 
 			case "toggleCSSMirrorContent":
 				const [isEnabled] = args;
+
 				this.toggleCSSMirrorContent(isEnabled);
 
 				return true;
@@ -171,10 +184,13 @@ export class MessageRouter {
 		if (e !== "websocket") {
 			return false;
 		}
+
 		const { event, message } = JSON.parse(args) as {
 			event: WebSocketEvent;
+
 			message: string;
 		};
+
 		this.fireWebSocketCallback(event, message);
 
 		return true;
@@ -243,6 +259,7 @@ export class MessageRouter {
 			url,
 			ignoreTabChanges,
 		};
+
 		encodeMessageForChannel(
 			(msg) => vscode.postMessage(msg, "*"),
 			"openInEditor",
@@ -277,6 +294,7 @@ export class MessageRouter {
 	private cssMirrorContent(url: string, newContent: string): void {
 		// Forward the data to the extension
 		const request: ICssMirrorContentData = { url, newContent };
+
 		encodeMessageForChannel(
 			(msg) => vscode.postMessage(msg, "*"),
 			"cssMirrorContent",
@@ -330,6 +348,7 @@ export class MessageRouter {
 	private showLoadingError() {
 		if (this.devtoolsActionReceived || !this.errorMessageDiv) {
 			this.sendDevToolsConnectionStatus(true);
+
 			this.fallbackAttempt = false;
 
 			return;
@@ -337,6 +356,7 @@ export class MessageRouter {
 		// Show the error message if DevTools has failed to record an action
 		if (!this.fallbackAttempt) {
 			this.sendDevToolsConnectionStatus(false);
+
 			this.fallbackAttempt = true;
 		} else {
 			this.errorMessageDiv.classList.remove("hidden");

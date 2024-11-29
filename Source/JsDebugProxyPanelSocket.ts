@@ -17,6 +17,7 @@ export class JsDebugProxyPanelSocket extends PanelSocket {
 		if (this.socket) {
 			this.registerForJsDebugSharedCDPEvents();
 		}
+
 		super.onOpen();
 	}
 

@@ -58,6 +58,7 @@ export class SettingsProvider {
 					theme = "systemPreferred";
 			}
 		}
+
 		return theme;
 	}
 

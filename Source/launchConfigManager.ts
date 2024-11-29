@@ -8,6 +8,7 @@ import { SETTINGS_DEFAULT_URL, SETTINGS_STORE_NAME } from "./utils";
 
 export type CompoundConfig = {
 	name: string;
+
 	configurations: string[];
 };
 
@@ -73,12 +74,16 @@ export const extensionConfigs: vscode.DebugConfiguration[] = [
 
 export class LaunchConfigManager {
 	private launchConfig: string;
+
 	private isValidConfig: boolean;
+
 	private static launchConfigManagerInstance: LaunchConfigManager;
 
 	private constructor() {
 		this.launchConfig = "None";
+
 		this.isValidConfig = false;
+
 		this.updateLaunchConfig();
 	}
 
@@ -87,6 +92,7 @@ export class LaunchConfigManager {
 			LaunchConfigManager.launchConfigManagerInstance =
 				new LaunchConfigManager();
 		}
+
 		return LaunchConfigManager.launchConfigManagerInstance;
 	}
 
@@ -104,7 +110,9 @@ export class LaunchConfigManager {
 				"launchJsonStatus",
 				"None",
 			);
+
 			this.launchConfig = "None";
+
 			this.isValidConfig = false;
 
 			return;
@@ -138,27 +146,34 @@ export class LaunchConfigManager {
 					"launchJsonStatus",
 					"Supported",
 				);
+
 				this.launchConfig = extensionCompoundConfigs[0].name; // extensionCompoundConfigs[0].name => 'Launch Edge Headless and attach DevTools'
 				this.isValidConfig = true;
 
 				return;
 			}
+
 			void vscode.commands.executeCommand(
 				"setContext",
 				"launchJsonStatus",
 				"Unsupported",
 			);
+
 			this.launchConfig = "Unsupported";
+
 			this.isValidConfig = false;
 
 			return;
 		}
+
 		void vscode.commands.executeCommand(
 			"setContext",
 			"launchJsonStatus",
 			"None",
 		);
+
 		this.launchConfig = "None";
+
 		this.isValidConfig = false;
 	}
 
@@ -179,6 +194,7 @@ export class LaunchConfigManager {
 		const workspaceUri = vscode.workspace.workspaceFolders[0].uri;
 
 		const relativePath = "/.vscode/launch.json";
+
 		fse.ensureFileSync(workspaceUri.fsPath + relativePath);
 
 		// Append a supported debug config to their list of configurations and update workspace configuration
@@ -190,6 +206,7 @@ export class LaunchConfigManager {
 		let configs = launchJson.get(
 			"configurations",
 		) as vscode.DebugConfiguration[];
+
 		configs = this.replaceDuplicateNameConfigs(
 			configs,
 			extensionConfigs,
@@ -203,10 +220,12 @@ export class LaunchConfigManager {
 		for (const missingConfig of missingConfigs) {
 			configs.push(missingConfig as vscode.DebugConfiguration);
 		}
+
 		void (await launchJson.update("configurations", configs));
 
 		// Add compound configs
 		let compounds = launchJson.get("compounds") as CompoundConfig[];
+
 		compounds = this.replaceDuplicateNameConfigs(
 			compounds,
 			extensionCompoundConfigs,
@@ -220,6 +239,7 @@ export class LaunchConfigManager {
 		for (const missingCompoundConfig of missingCompoundConfigs) {
 			compounds.push(missingCompoundConfig as CompoundConfig);
 		}
+
 		void (await launchJson.update("compounds", compounds));
 
 		// Insert instruction comment
@@ -233,10 +253,12 @@ export class LaunchConfigManager {
 
 		const instructions =
 			" // Provide your project's url to finish configuring";
+
 		launchText = launchText.replace(
 			re,
 			`${match ? match[0] : ""}${instructions}`,
 		);
+
 		fse.writeFileSync(workspaceUri.fsPath + relativePath, launchText);
 
 		// Open launch.json in editor
@@ -244,6 +266,7 @@ export class LaunchConfigManager {
 			"vscode.open",
 			vscode.Uri.joinPath(workspaceUri, relativePath),
 		);
+
 		this.updateLaunchConfig();
 	}
 
@@ -268,6 +291,7 @@ export class LaunchConfigManager {
 				extensionConfig,
 			);
 		}
+
 		for (const userConfig of userConfigs) {
 			const duplicateNameConfig = extensionConfigMap.get(
 				userConfig.name as string,
@@ -276,8 +300,10 @@ export class LaunchConfigManager {
 			const addConfig = duplicateNameConfig
 				? duplicateNameConfig
 				: userConfig;
+
 			configs.push(addConfig);
 		}
+
 		return configs;
 	}
 
@@ -297,6 +323,7 @@ export class LaunchConfigManager {
 					break;
 				}
 			}
+
 			if (!configExists) {
 				missingConfigs.push(extensionConfig);
 			}
@@ -313,6 +340,7 @@ export class LaunchConfigManager {
 			if (property === "url" || property === "presentation") {
 				continue;
 			}
+
 			if (
 				Array.isArray(extensionConfig[property]) &&
 				Array.isArray(userConfig[property])
@@ -332,6 +360,7 @@ export class LaunchConfigManager {
 				return false;
 			}
 		}
+
 		return true;
 	}
 }

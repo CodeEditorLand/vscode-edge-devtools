@@ -16,7 +16,9 @@ export default class InfobarComponent {
 
 	constructor(props: InfobarProps, container?: HTMLElement) {
 		this.#message = props.message;
+
 		this.#container = container;
+
 		this.#update();
 	}
 
@@ -28,6 +30,7 @@ export default class InfobarComponent {
 		if (!this.#container) {
 			return;
 		}
+
 		render(this.template(customStyles), this.#container);
 	}
 
@@ -37,6 +40,7 @@ export default class InfobarComponent {
 				<div class="infobar-message">${this.#message}</div>
 				<button
 					@click=${this.#onClick}
+
 					class="infobar-close-button"
 					${ref(this.#buttonRef)}></button>
 			</div>

@@ -5,10 +5,15 @@ import { Uri } from "vscode";
 
 export class ScreencastView {
 	private webviewCSP: string;
+
 	private cssPath: Uri;
+
 	private codiconsUri: Uri;
+
 	private inspectorUri: Uri;
+
 	private isDevToolsOpen: boolean;
+
 	private htmlTemplate = (
 		webviewCSP: string,
 		cssPath: Uri,
@@ -75,9 +80,13 @@ export class ScreencastView {
 		isDevToolsOpen: boolean,
 	) {
 		this.webviewCSP = webviewCSP;
+
 		this.cssPath = cssPath;
+
 		this.codiconsUri = codiconsUri;
+
 		this.inspectorUri = inspectorUri;
+
 		this.isDevToolsOpen = isDevToolsOpen;
 	}
 

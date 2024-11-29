@@ -14,10 +14,12 @@ const MouseButtonMap = ["left", "middle", "right", "back", "forward"];
 
 export class ScreencastInputHandler {
 	private cdpConnection: ScreencastCDPConnection;
+
 	private activeTouchParams: any | null;
 
 	constructor(cdpConnection: ScreencastCDPConnection) {
 		this.cdpConnection = cdpConnection;
+
 		this.activeTouchParams = null;
 	}
 
@@ -28,6 +30,7 @@ export class ScreencastInputHandler {
 		if (!eventType) {
 			return;
 		}
+
 		this.cdpConnection.sendMessageToBackend("Input.dispatchMouseEvent", {
 			type: eventType,
 			clickCount: mouseEvent.detail, // per https://developer.mozilla.org/docs/Web/API/UIEvent/detail
@@ -51,8 +54,10 @@ export class ScreencastInputHandler {
 		if (hasNonShiftModifier || keyboardEvent.key === "Tab") {
 			// Prevent keyboard shortcuts from acting on the screencast image.
 			keyboardEvent.preventDefault();
+
 			keyboardEvent.stopPropagation();
 		}
+
 		if (
 			(keyboardEvent.ctrlKey || keyboardEvent.metaKey) &&
 			(keyboardEvent.key === "c" || keyboardEvent.key === "x") &&
@@ -70,6 +75,7 @@ export class ScreencastInputHandler {
 				true,
 			);
 		}
+
 		if (
 			(keyboardEvent.ctrlKey || keyboardEvent.metaKey) &&
 			keyboardEvent.key === "v" &&
@@ -85,6 +91,7 @@ export class ScreencastInputHandler {
 			const text = hasNonShiftModifier
 				? ""
 				: this.textFromEvent(keyboardEvent);
+
 			this.cdpConnection.sendMessageToBackend("Input.dispatchKeyEvent", {
 				type:
 					keyboardEvent.type === "keyup"
@@ -117,6 +124,7 @@ export class ScreencastInputHandler {
 		if (!(mouseEvent.which in buttons)) {
 			return;
 		}
+
 		if (
 			eventType !== "mouseWheel" &&
 			buttons[mouseEvent.which] === "none"
@@ -135,12 +143,16 @@ export class ScreencastInputHandler {
 
 		if (mouseEvent.type === "wheel") {
 			const wheelEvent = mouseEvent as WheelEvent;
+
 			params.deltaX = wheelEvent.deltaX;
+
 			params.deltaY = -wheelEvent.deltaY;
+
 			params.button = "none";
 		} else {
 			this.activeTouchParams = params;
 		}
+
 		this.cdpConnection.sendMessageToBackend(
 			"Input.emulateTouchFromMouseEvent",
 			params,
@@ -150,8 +162,11 @@ export class ScreencastInputHandler {
 	cancelTouch(): void {
 		if (this.activeTouchParams !== null) {
 			const params = this.activeTouchParams;
+
 			this.activeTouchParams = null;
+
 			params.type = "mouseReleased";
+
 			this.cdpConnection.sendMessageToBackend(
 				"Input.emulateTouchFromMouseEvent",
 				params,
@@ -163,12 +178,15 @@ export class ScreencastInputHandler {
 		if (event.type === "keyup") {
 			return "";
 		}
+
 		if (event.key === "Enter") {
 			return "\r";
 		}
+
 		if (event.key.length > 1) {
 			return "";
 		}
+
 		return event.key;
 	}
 

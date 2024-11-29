@@ -21,8 +21,11 @@ type LaunchCallback = (
 
 export class LaunchDebugProvider implements vscode.DebugConfigurationProvider {
 	private readonly context: vscode.ExtensionContext;
+
 	private readonly telemetryReporter: Readonly<TelemetryReporter>;
+
 	private readonly attach: AttachCallback;
+
 	private readonly launch: LaunchCallback;
 
 	constructor(
@@ -32,8 +35,11 @@ export class LaunchDebugProvider implements vscode.DebugConfigurationProvider {
 		launch: LaunchCallback,
 	) {
 		this.context = context;
+
 		this.telemetryReporter = telemetryReporter;
+
 		this.attach = attach;
+
 		this.launch = launch;
 	}
 
@@ -65,18 +71,21 @@ export class LaunchDebugProvider implements vscode.DebugConfigurationProvider {
 
 			if (config.request && config.request === "attach") {
 				this.telemetryReporter.sendTelemetryEvent("debug/attach");
+
 				void this.attach(this.context, targetUri, userConfig, true);
 			} else if (
 				(config.request && config.request === "launch") ||
 				debugWithoutConfig
 			) {
 				this.telemetryReporter.sendTelemetryEvent("debug/launch");
+
 				void this.launch(this.context, targetUri, userConfig);
 			}
 		} else {
 			this.telemetryReporter.sendTelemetryEvent(
 				"debug/error/config_not_found",
 			);
+
 			void vscode.window.showErrorMessage(
 				"No supported launch config was found.",
 			);
@@ -100,6 +109,7 @@ export class LaunchDebugProvider implements vscode.DebugConfigurationProvider {
 					folder.uri.path,
 				);
 			}
+
 			outUrlString =
 				(outUrlString.startsWith("/") ? "file://" : "file:///") +
 				outUrlString;

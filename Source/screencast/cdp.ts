@@ -14,8 +14,11 @@ export const vscode = acquireVsCodeApi();
 
 interface CdpMessage {
 	id: number;
+
 	method: string;
+
 	params?: any;
+
 	result?: any;
 }
 
@@ -25,10 +28,15 @@ export type CdpMethodCallback = (result: any) => void;
 
 export class ScreencastCDPConnection {
 	private nextId: number = 0;
+
 	private eventCallbackMap: Map<string, CdpEventCallback[]> = new Map();
+
 	private methodCallbackMap: Map<number, CdpMethodCallback> = new Map();
+
 	private clipboardRequests: Set<number> = new Set();
+
 	private saveToClipboard?: (message: string) => void;
+
 	private readClipboardAndPaste?: () => void;
 
 	constructor() {
@@ -54,8 +62,10 @@ export class ScreencastCDPConnection {
 
 						if (methodCallback) {
 							methodCallback(messageObj.result);
+
 							this.methodCallbackMap.delete(messageObj.id);
 						}
+
 						if (
 							this.clipboardRequests.has(messageObj.id) &&
 							this.saveToClipboard
@@ -67,11 +77,14 @@ export class ScreencastCDPConnection {
 									}
 								).result.result.value,
 							);
+
 							this.clipboardRequests.delete(messageObj.id);
 						}
 					}
+
 					return true;
 				}
+
 				if (eventName === "toggleInspect") {
 					const { enabled } = JSON.parse(args) as { enabled: string };
 
@@ -81,6 +94,7 @@ export class ScreencastCDPConnection {
 						callback(enabled);
 					}
 				}
+
 				if (eventName === "readClipboard") {
 					const { clipboardText } = JSON.parse(args) as {
 						clipboardText: string;
@@ -92,6 +106,7 @@ export class ScreencastCDPConnection {
 						callback(clipboardText);
 					}
 				}
+
 				return false;
 			});
 		});
@@ -114,9 +129,11 @@ export class ScreencastCDPConnection {
 		if (callback) {
 			this.methodCallbackMap.set(id, callback);
 		}
+
 		if (isCutOrCopy) {
 			this.clipboardRequests.add(id);
 		}
+
 		encodeMessageForChannel(
 			(msg) => vscode.postMessage(msg, "*"),
 			"websocket",
@@ -128,6 +145,7 @@ export class ScreencastCDPConnection {
 		if (this.eventCallbackMap.has(method)) {
 			this.eventCallbackMap.get(method)?.push(callback);
 		}
+
 		this.eventCallbackMap.set(method, [callback]);
 	}
 

@@ -91,25 +91,33 @@ export interface ITelemetryProps {
 
 export interface ITelemetryDataNumber {
 	event: "enumerated" | "performance";
+
 	name: string;
+
 	data: number;
 }
 export interface ITelemetryDataObject {
 	event: "error" | "screencast";
+
 	name: string;
+
 	data: Record<string, unknown>;
 }
 export type TelemetryData = ITelemetryDataNumber | ITelemetryDataObject;
 
 export interface IOpenEditorData {
 	url: string;
+
 	line: number;
+
 	column: number;
+
 	ignoreTabChanges: boolean;
 }
 
 export interface ICssMirrorContentData {
 	url: string;
+
 	newContent: string;
 }
 
@@ -154,5 +162,6 @@ export function encodeMessageForChannel(
 	args?: unknown,
 ): void {
 	const message = `${eventType}:${JSON.stringify(args)}`;
+
 	postMessageCallback(message);
 }

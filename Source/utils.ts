@@ -21,36 +21,55 @@ export type BrowserFlavor = "Default" | "Stable" | "Beta" | "Dev" | "Canary";
 
 interface IBrowserPath {
 	debianLinux: string;
+
 	windows: {
 		primary: string;
+
 		secondary: string;
 	};
+
 	osx: string;
 }
 
 export interface IDevToolsSettings {
 	hostname: string;
+
 	port: number;
+
 	useHttps: boolean;
 
 	defaultUrl: string;
+
 	userDataDir: string;
+
 	timeout: number;
 }
 
 export interface IUserConfig {
 	url: string;
+
 	urlFilter: string;
+
 	browserFlavor: BrowserFlavor;
+
 	hostname: string;
+
 	port: number;
+
 	useHttps: boolean;
+
 	userDataDir: string | boolean;
+
 	webRoot: string;
+
 	pathMapping: IStringDictionary<string>;
+
 	sourceMapPathOverrides: IStringDictionary<string>;
+
 	sourceMaps: boolean;
+
 	timeout: number;
+
 	type: string;
 
 	defaultEntrypoint: string;
@@ -58,14 +77,21 @@ export interface IUserConfig {
 
 export interface IRuntimeConfig {
 	pathMapping: IStringDictionary<string>;
+
 	sourceMapPathOverrides: IStringDictionary<string>;
+
 	sourceMaps: boolean;
+
 	webRoot: string;
+
 	isJsDebugProxiedCDPConnection: boolean;
+
 	useLocalEdgeWatch: boolean;
+
 	devtoolsBaseUri?: string;
 
 	defaultEntrypoint?: string;
+
 	browserFlavor: BrowserFlavor;
 }
 export interface IStringDictionary<T> {
@@ -74,7 +100,9 @@ export interface IStringDictionary<T> {
 
 export interface IRequestCDPProxyResult {
 	host: string;
+
 	port: number;
+
 	path: string;
 }
 
@@ -145,13 +173,21 @@ declare const DEVTOOLS_BASE_URI: string | undefined;
 
 export interface IRemoteTargetJson {
 	[index: string]: string;
+
 	description: string;
+
 	devtoolsFrontendUrl: string;
+
 	faviconUrl: string;
+
 	id: string;
+
 	title: string;
+
 	type: string;
+
 	url: string;
+
 	webSocketDebuggerUrl: string;
 }
 
@@ -185,6 +221,7 @@ export function fetchUri(
 		const parsedUrl = url.parse(uri);
 
 		const get = parsedUrl.protocol === "https:" ? https.get : http.get;
+
 		options = {
 			rejectUnauthorized: false,
 			...parsedUrl,
@@ -194,9 +231,11 @@ export function fetchUri(
 
 		get(options, (response) => {
 			let responseData = "";
+
 			response.on("data", (chunk) => {
 				responseData += chunk;
 			});
+
 			response.on("end", () => {
 				// Sometimes the 'error' event is not fired. Double check here.
 				if (response.statusCode === 200) {
@@ -233,12 +272,14 @@ export function fixRemoteWebSocket(
 
 		if (addressMatch) {
 			const replaceAddress = `${remoteAddress}:${remotePort}`;
+
 			target.webSocketDebuggerUrl = target.webSocketDebuggerUrl.replace(
 				addressMatch[1],
 				replaceAddress,
 			);
 		}
 	}
+
 	return target;
 }
 
@@ -292,6 +333,7 @@ export async function getListOfTargets(
 					: `Unexpected error ${e}`,
 		});
 	}
+
 	return result;
 }
 
@@ -481,9 +523,11 @@ export async function getBrowserPath(
 		case "Windows": {
 			return await verifyFlavorPath(flavor, "Windows");
 		}
+
 		case "OSX": {
 			return await verifyFlavorPath(flavor, "OSX");
 		}
+
 		case "Linux": {
 			return await verifyFlavorPath(flavor, "Linux");
 		}
@@ -516,6 +560,7 @@ export async function launchBrowser(
 	const headless: boolean = forceHeadless ?? isHeadlessEnabled();
 
 	let browserArgs: string[] = getBrowserArgs();
+
 	browserArgs = browserArgs.filter(
 		(arg) =>
 			!arg.startsWith("--remote-debugging-port") && arg !== targetUrl,
@@ -523,6 +568,7 @@ export async function launchBrowser(
 
 	if (userDataDir) {
 		args.unshift(`--user-data-dir=${userDataDir}`);
+
 		browserArgs = browserArgs.filter(
 			(arg) => !arg.startsWith("--user-data-dir"),
 		);
@@ -692,6 +738,7 @@ export function replaceWebRootInSourceMapPathOverridesEntry(
 			return entry.replace("${webRoot}", webRoot);
 		}
 	}
+
 	return entry;
 }
 
@@ -713,6 +760,7 @@ export function addEntrypointIfNeeded(
 			? `${sourcePath}${defaultEntrypoint}`
 			: `${sourcePath}/${defaultEntrypoint}`;
 	}
+
 	return sourcePath;
 }
 
@@ -856,6 +904,7 @@ function replaceWorkSpaceFolderPlaceholder(customPath: string) {
 
 		return debugCore.utils.canonicalizeUrl(replacedPath);
 	}
+
 	return parsedPath;
 }
 
@@ -901,18 +950,21 @@ async function verifyFlavorPath(
 		) {
 			return browserPath.windows.primary;
 		}
+
 		if (
 			(await fse.pathExists(browserPath.windows.secondary)) &&
 			(platform === "Windows" || flavor === "Default")
 		) {
 			return browserPath.windows.secondary;
 		}
+
 		if (
 			(await fse.pathExists(browserPath.osx)) &&
 			(platform === "OSX" || flavor === "Default")
 		) {
 			return browserPath.osx;
 		}
+
 		if (
 			(await fse.pathExists(browserPath.debianLinux)) &&
 			(platform === "Linux" || flavor === "Default")
@@ -980,11 +1032,14 @@ export function reportExtensionSettings(
 			}
 		}
 	}
+
 	const changedSettingsObject = {};
+
 	Object.assign(
 		changedSettingsObject,
 		...[...changedSettingsMap.entries()].map(([k, v]) => ({ [k]: v })),
 	);
+
 	telemetryReporter.sendTelemetryEvent(
 		"user/settingsChangedAtLaunch",
 		changedSettingsObject,
@@ -1019,7 +1074,9 @@ export function reportChangedExtensionSetting(
 						typeof settingValue !== "object"
 							? settingValue.toString()
 							: JSON.stringify(settingValue);
+
 					telemetryObject[settingName] = objString;
+
 					telemetryReporter.sendTelemetryEvent(
 						"user/settingsChanged",
 						telemetryObject,
@@ -1050,6 +1107,7 @@ export function reportUrlType(
 	} else {
 		urlType = "other";
 	}
+
 	telemetryReporter.sendTelemetryEvent("user/browserNavigation", {
 		"urlType": urlType,
 	});
@@ -1094,14 +1152,17 @@ export async function reportFileExtensionTypes(
 			}
 		}
 	}
+
 	extensionMap.set("total", files.length);
 
 	// Creates Object from map
 	const fileTypes: { [key: string]: number } = {};
+
 	Object.assign(
 		fileTypes,
 		...[...extensionMap.entries()].map(([k, v]) => ({ [k]: v })),
 	);
+
 	telemetryReporter.sendTelemetryEvent(
 		"workspace/metadata",
 		undefined,
@@ -1122,14 +1183,17 @@ export function checkWithinHoverRange(
 		) {
 			return false;
 		}
+
 		if (
 			position.line === range.end.line &&
 			position.character > range.end.character
 		) {
 			return false;
 		}
+
 		return true;
 	}
+
 	return false;
 }
 
@@ -1141,6 +1205,7 @@ export function getSupportedStaticAnalysisFileTypes(): string[] {
 			supportedFileTypes.push(event.substring(11));
 		}
 	}
+
 	return supportedFileTypes;
 }
 
@@ -1158,6 +1223,7 @@ export function getSupportedStaticAnalysisFileTypes(): string[] {
 			),
 		},
 	});
+
 	msEdgeBrowserMapping.set("Beta", {
 		debianLinux: "/opt/microsoft/msedge-beta/msedge",
 		osx: "/Applications/Microsoft Edge Beta.app/Contents/MacOS/Microsoft Edge Beta",
@@ -1170,6 +1236,7 @@ export function getSupportedStaticAnalysisFileTypes(): string[] {
 			),
 		},
 	});
+
 	msEdgeBrowserMapping.set("Dev", {
 		debianLinux: "/opt/microsoft/msedge-dev/msedge",
 		osx: "/Applications/Microsoft Edge Dev.app/Contents/MacOS/Microsoft Edge Dev",
@@ -1182,6 +1249,7 @@ export function getSupportedStaticAnalysisFileTypes(): string[] {
 			),
 		},
 	});
+
 	msEdgeBrowserMapping.set("Canary", {
 		debianLinux: "/opt/microsoft/msedge-canary/msedge",
 		osx: "/Applications/Microsoft Edge Canary.app/Contents/MacOS/Microsoft Edge Canary",

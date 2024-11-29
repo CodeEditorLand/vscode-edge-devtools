@@ -20,6 +20,7 @@ export function groupEmulatedDevicesByType(): Map<string, MenuItem[]> {
 
 			continue;
 		}
+
 		let shouldAdd = true;
 
 		for (const entry of groupedDeviceList) {
@@ -29,9 +30,11 @@ export function groupEmulatedDevicesByType(): Map<string, MenuItem[]> {
 				break;
 			}
 		}
+
 		if (!shouldAdd) {
 			continue;
 		}
+
 		groupedDeviceList?.push(deviceEntry);
 	}
 

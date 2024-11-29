@@ -24,13 +24,21 @@ import {
 
 export class ScreencastPanel {
 	private readonly context: vscode.ExtensionContext;
+
 	private readonly extensionPath: string;
+
 	private readonly panel: vscode.WebviewPanel;
+
 	private readonly telemetryReporter: TelemetryReporter;
+
 	private isJsDebugProxiedCDPConnection = false;
+
 	private targetUrl: string;
+
 	private panelSocket: PanelSocket;
+
 	private screencastStartTime;
+
 	static instance: ScreencastPanel | undefined;
 
 	private constructor(
@@ -41,11 +49,17 @@ export class ScreencastPanel {
 		isJsDebugProxiedCDPConnection: boolean,
 	) {
 		this.panel = panel;
+
 		this.context = context;
+
 		this.targetUrl = targetUrl;
+
 		this.extensionPath = this.context.extensionPath;
+
 		this.telemetryReporter = telemetryReporter;
+
 		this.screencastStartTime = Date.now();
+
 		this.isJsDebugProxiedCDPConnection = isJsDebugProxiedCDPConnection;
 
 		if (isJsDebugProxiedCDPConnection) {
@@ -58,22 +72,29 @@ export class ScreencastPanel {
 				this.postToWebview(e, msg),
 			);
 		}
+
 		this.panelSocket.on("close", () => this.onSocketClose());
+
 		this.panelSocket.on("telemetry", (message: string) =>
 			this.onSocketTelemetry(message),
 		);
+
 		this.panelSocket.on("writeToClipboard", (message: string) =>
 			this.onSaveToClipboard(message),
 		);
+
 		this.panelSocket.on("readClipboard", () => this.onGetClipboardText());
 
 		// Handle closing
 		this.panel.onDidDispose(() => {
 			this.dispose();
+
 			this.panelSocket.dispose();
+
 			this.recordEnumeratedHistogram("DevTools.ScreencastToggle", 0);
 
 			const sessionDuration = Date.now() - this.screencastStartTime;
+
 			this.recordPerformanceHistogram(
 				"DevTools.ScreencastDuration",
 				sessionDuration,
@@ -104,7 +125,9 @@ export class ScreencastPanel {
 
 	private recordEnumeratedHistogram(actionName: string, actionCode: number) {
 		const properties: ITelemetryProps = {};
+
 		properties[`${actionName}.actionCode`] = actionCode.toString();
+
 		this.telemetryReporter.sendTelemetryEvent(
 			`devtools/${actionName}`,
 			properties,
@@ -113,7 +136,9 @@ export class ScreencastPanel {
 
 	private recordPerformanceHistogram(actionName: string, duration: number) {
 		const measures: ITelemetryMeasures = {};
+
 		measures[`${actionName}.duration`] = duration;
+
 		this.telemetryReporter.sendTelemetryEvent(
 			`devtools/${actionName}`,
 			undefined,
@@ -125,6 +150,7 @@ export class ScreencastPanel {
 		ScreencastPanel.instance = undefined;
 
 		this.panel.dispose();
+
 		this.panelSocket.dispose();
 
 		if (
@@ -234,6 +260,7 @@ export class ScreencastPanel {
 		const clipboardMessage = JSON.parse(message) as {
 			data: { message: string };
 		};
+
 		void vscode.env.clipboard.writeText(clipboardMessage.data.message);
 	}
 
@@ -268,10 +295,12 @@ export class ScreencastPanel {
 					retainContextWhenHidden: true,
 				},
 			);
+
 			panel.iconPath = vscode.Uri.joinPath(
 				context.extensionUri,
 				"icon.png",
 			);
+
 			ScreencastPanel.instance = new ScreencastPanel(
 				panel,
 				context,

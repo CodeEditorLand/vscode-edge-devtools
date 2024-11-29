@@ -21,8 +21,11 @@ import {
 
 export class CDPTargetsProvider implements vscode.TreeDataProvider<CDPTarget> {
 	readonly onDidChangeTreeData: vscode.Event<CDPTarget | null>;
+
 	readonly changeDataEvent: vscode.EventEmitter<CDPTarget | null>;
+
 	private extensionPath: string;
+
 	private telemetryReporter: Readonly<TelemetryReporter>;
 
 	constructor(
@@ -30,8 +33,11 @@ export class CDPTargetsProvider implements vscode.TreeDataProvider<CDPTarget> {
 		telemetryReporter: Readonly<TelemetryReporter>,
 	) {
 		this.changeDataEvent = new vscode.EventEmitter<CDPTarget | null>();
+
 		this.onDidChangeTreeData = this.changeDataEvent.event;
+
 		this.extensionPath = context.extensionPath;
+
 		this.telemetryReporter = telemetryReporter;
 	}
 
@@ -63,6 +69,7 @@ export class CDPTargetsProvider implements vscode.TreeDataProvider<CDPTarget> {
 					const responseIconPromiseArray: Array<
 						Promise<IRemoteTargetJson>
 					> = [];
+
 					responseArray.forEach((target: IRemoteTargetJson) => {
 						const actualTarget = fixRemoteWebSocket(
 							hostname,
@@ -131,12 +138,15 @@ export class CDPTargetsProvider implements vscode.TreeDataProvider<CDPTarget> {
 				if (a.targetJson.type === b.targetJson.type) {
 					return a.targetJson.title < b.targetJson.title ? -1 : 1;
 				}
+
 				if (a.targetJson.type === "page") {
 					return -1;
 				}
+
 				if (b.targetJson.type === "page") {
 					return 1;
 				}
+
 				return a.targetJson.type < b.targetJson.type ? -1 : 1;
 			});
 		} else {
@@ -149,7 +159,9 @@ export class CDPTargetsProvider implements vscode.TreeDataProvider<CDPTarget> {
 
 	refresh(): void {
 		this.changeDataEvent.fire(null);
+
 		void this.clearFaviconResourceDirectory();
+
 		LaunchConfigManager.instance.updateLaunchConfig();
 	}
 
@@ -177,6 +189,7 @@ export class CDPTargetsProvider implements vscode.TreeDataProvider<CDPTarget> {
 		if (!actualTarget.url || !actualTarget.url.startsWith("https")) {
 			return Promise.resolve(actualTarget);
 		}
+
 		const faviconRegex = /((?:\/\/|\.)([^\.]*)\.[^\.^\/]+\/).*/;
 
 		// Example regex match: https://learn.microsoft.com/en-us/microsoft-edge/
@@ -213,6 +226,7 @@ export class CDPTargetsProvider implements vscode.TreeDataProvider<CDPTarget> {
 					response.headers["content-type"].includes("icon")
 				) {
 					const buffer: Uint8Array[] = [];
+
 					response.on("data", (data: Uint8Array) => {
 						buffer.push(data);
 					});
@@ -224,7 +238,9 @@ export class CDPTargetsProvider implements vscode.TreeDataProvider<CDPTarget> {
 								filePath,
 								Buffer.concat(buffer),
 							);
+
 							actualTarget.faviconUrl = filePath;
+
 							resolve(actualTarget);
 						} catch {
 							// eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
@@ -241,6 +257,7 @@ export class CDPTargetsProvider implements vscode.TreeDataProvider<CDPTarget> {
 		const timeout = new Promise<IRemoteTargetJson>((resolve) => {
 			const id = setTimeout(() => {
 				clearTimeout(id);
+
 				resolve(actualTarget);
 			}, 1000);
 		});

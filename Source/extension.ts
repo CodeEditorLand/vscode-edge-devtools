@@ -97,6 +97,7 @@ export function activate(context: vscode.ExtensionContext): void {
 						);
 					}
 				}
+
 				return null;
 			},
 		},
@@ -104,6 +105,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
 	// Check if launch.json exists and has supported config to populate side pane welcome message
 	LaunchConfigManager.instance.updateLaunchConfig();
+
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
 			`${SETTINGS_STORE_NAME}.attach`,
@@ -146,12 +148,14 @@ export function activate(context: vscode.ExtensionContext): void {
 
 	// Register the side-panel view and its commands
 	cdpTargetsProvider = new CDPTargetsProvider(context, telemetryReporter);
+
 	context.subscriptions.push(
 		vscode.window.registerTreeDataProvider(
 			`${SETTINGS_VIEW_NAME}.targets`,
 			cdpTargetsProvider,
 		),
 	);
+
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
 			`${SETTINGS_VIEW_NAME}.launch`,
@@ -166,19 +170,24 @@ export function activate(context: vscode.ExtensionContext): void {
 						"VSCode.buttonCode": buttonCode.launchBrowserInstance,
 					});
 				}
+
 				await launch(context);
+
 				cdpTargetsProvider.refresh();
 			},
 		),
 	);
+
 	context.subscriptions.push(
 		vscode.commands.registerCommand(`${SETTINGS_VIEW_NAME}.refresh`, () => {
 			telemetryReporter.sendTelemetryEvent("user/buttonPress", {
 				"VSCode.buttonCode": buttonCode.refreshTargetList,
 			});
+
 			cdpTargetsProvider.refresh();
 		}),
 	);
+
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
 			`${SETTINGS_VIEW_NAME}.attach`,
@@ -190,9 +199,11 @@ export function activate(context: vscode.ExtensionContext): void {
 
 					return;
 				}
+
 				telemetryReporter.sendTelemetryEvent("user/buttonPress", {
 					"VSCode.buttonCode": buttonCode.attachToTarget,
 				});
+
 				telemetryReporter.sendTelemetryEvent("view/devtools");
 
 				const runtimeConfig = getRuntimeConfig();
@@ -200,6 +211,7 @@ export function activate(context: vscode.ExtensionContext): void {
 				if (isJsDebugProxiedCDPConnection) {
 					runtimeConfig.isJsDebugProxiedCDPConnection = true;
 				}
+
 				DevToolsPanel.createOrShow(
 					context,
 					telemetryReporter,
@@ -219,6 +231,7 @@ export function activate(context: vscode.ExtensionContext): void {
 			) => {
 				if (!target) {
 					const errorMessage = "No target selected";
+
 					telemetryReporter.sendTelemetryErrorEvent(
 						"command/screencast/target",
 						{ message: errorMessage },
@@ -226,10 +239,13 @@ export function activate(context: vscode.ExtensionContext): void {
 
 					return;
 				}
+
 				telemetryReporter.sendTelemetryEvent("user/buttonPress", {
 					"VSCode.buttonCode": buttonCode.toggleScreencast,
 				});
+
 				telemetryReporter.sendTelemetryEvent("view/screencast");
+
 				ScreencastPanel.createOrShow(
 					context,
 					telemetryReporter,
@@ -258,6 +274,7 @@ export function activate(context: vscode.ExtensionContext): void {
 				telemetryReporter.sendTelemetryEvent("user/buttonPress", {
 					"VSCode.buttonCode": buttonCode.openSettings,
 				});
+
 				void vscode.commands.executeCommand(
 					"workbench.action.openSettings",
 					`${SETTINGS_STORE_NAME}`,
@@ -265,6 +282,7 @@ export function activate(context: vscode.ExtensionContext): void {
 			},
 		),
 	);
+
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
 			`${SETTINGS_VIEW_NAME}.viewChangelog`,
@@ -272,6 +290,7 @@ export function activate(context: vscode.ExtensionContext): void {
 				telemetryReporter.sendTelemetryEvent("user/buttonPress", {
 					"VSCode.buttonCode": buttonCode.viewChangelog,
 				});
+
 				void vscode.env.openExternal(
 					vscode.Uri.parse(
 						"https://github.com/microsoft/vscode-edge-devtools/blob/main/CHANGELOG.md",
@@ -280,6 +299,7 @@ export function activate(context: vscode.ExtensionContext): void {
 			},
 		),
 	);
+
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
 			`${SETTINGS_VIEW_NAME}.close-instance`,
@@ -291,11 +311,13 @@ export function activate(context: vscode.ExtensionContext): void {
 
 					return;
 				}
+
 				telemetryReporter.sendTelemetryEvent("user/buttonPress", {
 					"VSCode.buttonCode": buttonCode.closeTarget,
 				});
 				// disable buttons for this target
 				target.contextValue = "cdpTargetClosing";
+
 				cdpTargetsProvider.changeDataEvent.fire(target);
 
 				// update with the latest information, in case user has navigated to a different page via browser.
@@ -334,6 +356,7 @@ export function activate(context: vscode.ExtensionContext): void {
 			},
 		),
 	);
+
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
 			`${SETTINGS_VIEW_NAME}.copyItem`,
@@ -341,6 +364,7 @@ export function activate(context: vscode.ExtensionContext): void {
 				vscode.env.clipboard.writeText(target.tooltip),
 		),
 	);
+
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
 			`${SETTINGS_VIEW_NAME}.configureLaunchJson`,
@@ -352,10 +376,12 @@ export function activate(context: vscode.ExtensionContext): void {
 							? buttonCode.generateLaunchJson
 							: buttonCode.configureLaunchJson,
 				});
+
 				void LaunchConfigManager.instance.configureLaunchJson();
 			},
 		),
 	);
+
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
 			`${SETTINGS_VIEW_NAME}.launchProject`,
@@ -363,6 +389,7 @@ export function activate(context: vscode.ExtensionContext): void {
 				telemetryReporter.sendTelemetryEvent("user/buttonPress", {
 					"VSCode.buttonCode": buttonCode.launchProject,
 				});
+
 				LaunchConfigManager.instance.updateLaunchConfig();
 
 				if (vscode.workspace.workspaceFolders) {
@@ -377,6 +404,7 @@ export function activate(context: vscode.ExtensionContext): void {
 					} else {
 						const autoConfigButtonText =
 							"Auto-configure launch.json and launch project";
+
 						void vscode.window
 							.showErrorMessage(
 								"Cannot launch a project without a valid launch.json. Please open a folder in the editor.",
@@ -395,9 +423,11 @@ export function activate(context: vscode.ExtensionContext): void {
 								}
 							});
 					}
+
 					cdpTargetsProvider.refresh();
 				} else {
 					const openFolderText = "Open Folder";
+
 					void vscode.window
 						.showErrorMessage(
 							"Cannot launch a project for an empty workspace. Please open a folder in the editor and try again.",
@@ -414,6 +444,7 @@ export function activate(context: vscode.ExtensionContext): void {
 			},
 		),
 	);
+
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
 			`${SETTINGS_VIEW_NAME}.viewDocumentation`,
@@ -421,6 +452,7 @@ export function activate(context: vscode.ExtensionContext): void {
 				telemetryReporter.sendTelemetryEvent("user/buttonPress", {
 					"VSCode.buttonCode": buttonCode.viewDocumentation,
 				});
+
 				void vscode.env.openExternal(
 					vscode.Uri.parse(
 						"https://learn.microsoft.com/microsoft-edge/visual-studio-code/microsoft-edge-devtools-extension",
@@ -435,6 +467,7 @@ export function activate(context: vscode.ExtensionContext): void {
 			`${SETTINGS_VIEW_NAME}.cssMirrorContent`,
 			() => {
 				const cssMirrorContent = getCSSMirrorContentEnabled(context);
+
 				void setCSSMirrorContentEnabled(context, !cssMirrorContent);
 			},
 		),
@@ -445,6 +478,7 @@ export function activate(context: vscode.ExtensionContext): void {
 			`${SETTINGS_VIEW_NAME}.launchHtml`,
 			async (fileUri: vscode.Uri): Promise<void> => {
 				telemetryReporter.sendTelemetryEvent("contextMenu/launchHtml");
+
 				await launchHtml(fileUri);
 			},
 		),
@@ -457,6 +491,7 @@ export function activate(context: vscode.ExtensionContext): void {
 				telemetryReporter.sendTelemetryEvent(
 					"contextMenu/launchScreencast",
 				);
+
 				await launchScreencast(context, fileUri);
 			},
 		),
@@ -467,8 +502,11 @@ export function activate(context: vscode.ExtensionContext): void {
 		"titleCommandsRegistered",
 		true,
 	);
+
 	void reportFileExtensionTypes(telemetryReporter);
+
 	reportExtensionSettings(telemetryReporter);
+
 	vscode.workspace.onDidChangeConfiguration((event) =>
 		reportChangedExtensionSetting(event, telemetryReporter),
 	);
@@ -479,6 +517,7 @@ export function activate(context: vscode.ExtensionContext): void {
 	if (settingsConfig.get("webhint")) {
 		void startWebhint(context);
 	}
+
 	vscode.workspace.onDidChangeConfiguration((event) => {
 		if (event.affectsConfiguration(`${SETTINGS_STORE_NAME}.webhint`)) {
 			if (
@@ -501,7 +540,9 @@ export async function launchHtml(fileUri: vscode.Uri): Promise<void> {
 
 	if (!vscode.env.remoteName) {
 		edgeDebugConfig.url = `file://${fileUri.fsPath}`;
+
 		devToolsAttachConfig.url = `file://${fileUri.fsPath}`;
+
 		void vscode.debug
 			.startDebugging(undefined, edgeDebugConfig)
 			.then(() =>
@@ -510,12 +551,15 @@ export async function launchHtml(fileUri: vscode.Uri): Promise<void> {
 	} else {
 		// Parse the filename from the remoteName, file authority and path e.g. file://wsl.localhost/ubuntu-20.04/test/index.html
 		const url = `file://${vscode.env.remoteName}.localhost/${fileUri.authority.split("+")[1]}/${fileUri.fsPath.replace(/\\/g, "/")}`;
+
 		edgeDebugConfig.url = url;
+
 		devToolsAttachConfig.url = url;
 
 		const { port, userDataDir } = getRemoteEndpointSettings();
 
 		const browserPath = await getBrowserPath();
+
 		await launchBrowser(
 			browserPath,
 			port,
@@ -536,17 +580,20 @@ export async function launchScreencast(
 
 	if (!vscode.env.remoteName) {
 		edgeDebugConfig.url = `file://${fileUri.fsPath}`;
+
 		void vscode.debug
 			.startDebugging(undefined, edgeDebugConfig)
 			.then(() => attach(context, fileUri.fsPath, undefined, true, true));
 	} else {
 		// Parse the filename from the remoteName, file authority and path e.g. file://wsl.localhost/ubuntu-20.04/test/index.html
 		const url = `file://${vscode.env.remoteName}.localhost/${fileUri.authority.split("+")[1]}/${fileUri.fsPath.replace(/\\/g, "/")}`;
+
 		edgeDebugConfig.url = url;
 
 		const { port, userDataDir } = getRemoteEndpointSettings();
 
 		const browserPath = await getBrowserPath();
+
 		await launchBrowser(
 			browserPath,
 			port,
@@ -605,6 +652,7 @@ async function startWebhint(context: vscode.ExtensionContext): Promise<void> {
 
 						break;
 					}
+
 					case "vscode-webhint/ignore-feature-project": {
 						telemetryReporter.sendTelemetryEvent(
 							"user/webhint/quickfix/disable-rule",
@@ -613,6 +661,7 @@ async function startWebhint(context: vscode.ExtensionContext): Promise<void> {
 
 						break;
 					}
+
 					case "vscode-webhint/edit-hintrc-project": {
 						telemetryReporter.sendTelemetryEvent(
 							"user/webhint/quickfix/edit-hintrc",
@@ -620,6 +669,7 @@ async function startWebhint(context: vscode.ExtensionContext): Promise<void> {
 
 						break;
 					}
+
 					case "vscode-webhint/ignore-browsers-project": {
 						if (args.length > 1) {
 							// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -632,8 +682,10 @@ async function startWebhint(context: vscode.ExtensionContext): Promise<void> {
 								},
 							);
 						}
+
 						break;
 					}
+
 					case "vscode-webhint/apply-code-fix": {
 						telemetryReporter.sendTelemetryEvent(
 							"user/webhint/quickfix/apply-code-fix",
@@ -662,15 +714,18 @@ async function startWebhint(context: vscode.ExtensionContext): Promise<void> {
 	const disableInstallFailedNotification = vscode.workspace
 		.getConfiguration(SETTINGS_STORE_NAME)
 		.get("webhintInstallNotification");
+
 	client.onNotification(installFailedNotification, () => {
 		if (!telemetryReporter) {
 			telemetryReporter = createTelemetryReporter(context);
 		}
+
 		telemetryReporter.sendTelemetryEvent("user/webhint/install-failed");
 
 		if (!disableInstallFailedNotification) {
 			const message =
 				"Ensure `node` and `npm` are installed to enable automatically reporting issues in source files pertaining to accessibility, compatibility, security, and more.";
+
 			void vscode.window
 				.showInformationMessage(
 					message,
@@ -688,6 +743,7 @@ async function startWebhint(context: vscode.ExtensionContext): Promise<void> {
 								vscode.ConfigurationTarget.Global,
 							);
 					}
+
 					if (button === "Don't show again") {
 						void vscode.workspace
 							.getConfiguration(SETTINGS_STORE_NAME)
@@ -704,10 +760,13 @@ async function startWebhint(context: vscode.ExtensionContext): Promise<void> {
 	// Listen for requests to show the output panel for this extension.
 	const showOutputNotification: typeof showOutput =
 		"vscode-webhint/show-output";
+
 	client.onNotification(showOutputNotification, () => {
 		client.outputChannel.clear();
+
 		client.outputChannel.show(true);
 	});
+
 	await client.start();
 }
 
@@ -797,6 +856,7 @@ export async function attach(
 						port,
 						matchedTargets[0] as unknown as IRemoteTargetJson,
 					);
+
 					targetWebsocketUrl = actualTarget.webSocketDebuggerUrl;
 				} else if (!useRetry) {
 					void vscode.window.showErrorMessage(
@@ -902,10 +962,12 @@ export async function attachToCurrentDebugTarget(
 
 	if (!sessionId) {
 		const errorMessage = "No active debug session";
+
 		telemetryReporter.sendTelemetryErrorEvent(
 			"command/attachToCurrentDebugTarget/devtools",
 			{ message: errorMessage },
 		);
+
 		void vscode.window.showErrorMessage(errorMessage);
 
 		return;
@@ -918,6 +980,7 @@ export async function attachToCurrentDebugTarget(
 			"command/attachToCurrentDebugTarget/devtools",
 			{ message: targetWebsocketUrl.message },
 		);
+
 		void vscode.window.showErrorMessage(targetWebsocketUrl.message);
 	} else if (targetWebsocketUrl) {
 		// Auto connect to found target
@@ -926,7 +989,9 @@ export async function attachToCurrentDebugTarget(
 		);
 
 		const runtimeConfig = getRuntimeConfig(config);
+
 		runtimeConfig.isJsDebugProxiedCDPConnection = true;
+
 		DevToolsPanel.createOrShow(
 			context,
 			telemetryReporter,
@@ -936,10 +1001,12 @@ export async function attachToCurrentDebugTarget(
 	} else {
 		const errorMessage =
 			"Unable to attach DevTools to current debug session.";
+
 		telemetryReporter.sendTelemetryErrorEvent(
 			"command/attachToCurrentDebugTarget/devtools",
 			{ message: errorMessage },
 		);
+
 		void vscode.window.showErrorMessage(errorMessage);
 	}
 }
@@ -964,6 +1031,7 @@ export async function launch(
 		browserType,
 		isHeadless,
 	};
+
 	telemetryReporter.sendTelemetryEvent("command/launch", telemetryProps);
 
 	const { hostname, port, defaultUrl, userDataDir } =
@@ -981,6 +1049,7 @@ export async function launch(
 		);
 
 		const runtimeConfig = getRuntimeConfig(config);
+
 		DevToolsPanel.createOrShow(
 			context,
 			telemetryReporter,
@@ -996,6 +1065,7 @@ export async function launch(
 				"command/launch/error/browser_not_found",
 				telemetryProps,
 			);
+
 			void vscode.window.showErrorMessage(
 				"Microsoft Edge could not be found. " +
 					"Ensure you have installed Microsoft Edge " +
@@ -1014,11 +1084,13 @@ export async function launch(
 		if (!exeName) {
 			return;
 		}
+
 		const match = exeName.match(/(chrome|edge)/gi) || [];
 
 		const knownBrowser = match.length > 0 ? match[0] : "other";
 
 		const browserProps = { exe: `${knownBrowser?.toLowerCase()}` };
+
 		telemetryReporter.sendTelemetryEvent(
 			"command/launch/browser",
 			browserProps,
@@ -1034,17 +1106,21 @@ export async function launch(
 		if (url !== SETTINGS_DEFAULT_URL) {
 			reportUrlType(url, telemetryReporter);
 		}
+
 		browserInstance.on("targetcreated", () => {
 			cdpTargetsProvider.refresh();
 		});
+
 		browserInstance.on("targetdestroyed", () => {
 			cdpTargetsProvider.refresh();
 		});
+
 		browserInstance.on("targetchanged", (target: Target) => {
 			if (target.type() === "page") {
 				reportUrlType(target.url(), telemetryReporter);
 			}
 		});
+
 		await attach(context, url, config);
 	}
 }

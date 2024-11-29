@@ -4,7 +4,9 @@ import { ErrorCodes } from "./common/errorCodes";
 
 export interface ErrorEventInterface {
 	title: string;
+
 	message: string;
+
 	errorCode: ErrorCodes;
 }
 

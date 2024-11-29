@@ -14,8 +14,10 @@ export type IDevToolsPostMessageCallback = (
 
 export interface BrowserVersionCdpResponse {
 	id: number;
+
 	result?: {
 		product?: string;
+
 		revision?: string;
 	};
 }
@@ -27,16 +29,19 @@ export const MIN_SUPPORTED_REVISION = CDN_FALLBACK_REVISION;
 
 export class BrowserVersionDetectionSocket extends EventEmitter {
 	private readonly targetUrl: string;
+
 	private socket: WebSocket | undefined;
 
 	constructor(targetUrl: string) {
 		super();
+
 		this.targetUrl = targetUrl;
 	}
 
 	dispose(): void {
 		if (this.socket) {
 			this.socket.close();
+
 			this.socket = undefined;
 		}
 	}
@@ -44,7 +49,9 @@ export class BrowserVersionDetectionSocket extends EventEmitter {
 	detectVersion(): void {
 		// Connect to target to determine browser version
 		this.socket = new WebSocket(this.targetUrl);
+
 		this.socket.onopen = () => this.onOpen();
+
 		this.socket.onmessage = (ev) => this.onMessage(ev);
 	}
 
@@ -67,6 +74,7 @@ export class BrowserVersionDetectionSocket extends EventEmitter {
 		const data = JSON.parse(
 			message.data.toString(),
 		) as BrowserVersionCdpResponse;
+
 		this.emit("setCdnParameters", this.calcBrowserRevision(data));
 		// Dispose socket after version is determined
 		this.dispose();
@@ -76,6 +84,7 @@ export class BrowserVersionDetectionSocket extends EventEmitter {
 
 	private calcBrowserRevision(data: BrowserVersionCdpResponse): {
 		revision: string;
+
 		isHeadless: boolean;
 	} {
 		if (
@@ -107,6 +116,7 @@ export class BrowserVersionDetectionSocket extends EventEmitter {
 			if (currentVersion[i] > minSupportedVersion[i]) {
 				return { revision: currentRevision, isHeadless };
 			}
+
 			if (currentVersion[i] < minSupportedVersion[i]) {
 				return { revision: MIN_SUPPORTED_REVISION, isHeadless };
 			}

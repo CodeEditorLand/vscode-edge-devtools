@@ -12,21 +12,29 @@ export enum OffsetDirection {
 
 export interface MenuItem {
 	name: string;
+
 	value: string;
 }
 
 export interface MenuItemSection {
 	onItemSelected: (value: string) => void;
+
 	selectedItem?: string;
+
 	menuItems: MenuItem[];
 }
 
 interface FlyoutMenuProps {
 	iconName: string;
+
 	title: string;
+
 	displayCurrentSelection?: boolean;
+
 	globalSelectedItem?: string;
+
 	offsetDirection?: OffsetDirection.Left | OffsetDirection.Right;
+
 	menuItemSections: MenuItemSection[];
 }
 
@@ -42,9 +50,13 @@ export default class FlyoutMenuComponent {
 
 	constructor(props: FlyoutMenuProps, container?: HTMLElement) {
 		this.#globalSelectedItem = props.globalSelectedItem;
+
 		this.#iconName = props.iconName;
+
 		this.#title = props.title;
+
 		this.#menuItemSections = props.menuItemSections;
+
 		this.#container = container;
 
 		if (props.offsetDirection) {
@@ -68,6 +80,7 @@ export default class FlyoutMenuComponent {
 
 			if (this.#globalSelectedItem) {
 				this.#globalSelectedItem = value;
+
 				this.#update();
 			} else {
 				this.#menuItemSections[sectionIndex].selectedItem = value;
@@ -88,6 +101,7 @@ export default class FlyoutMenuComponent {
 		render(this.#menuTemplate(styles), document.body);
 
 		const popoverElement = document.getElementById("popover");
+
 		styles.top =
 			Math.min(
 				boundingRect.top - popoverElement!.offsetHeight,
@@ -127,6 +141,7 @@ export default class FlyoutMenuComponent {
 					? item.value === menuItemSection.selectedItem
 					: i === 0;
 			}
+
 			return html`
 				<li
 					@mousedown=${this.#onItemSelected(
@@ -156,12 +171,14 @@ export default class FlyoutMenuComponent {
 
 		for (let i = 0; i < this.#menuItemSections.length; i++) {
 			const section = this.#menuItemSections[i];
+
 			partials.push(this.#menuSectionTemplate(section, i));
 
 			if (i !== this.#menuItemSections.length - 1) {
 				partials.push(html`<hr />`);
 			}
 		}
+
 		return html`
 			<div id="popover" style=${styleMap(styles)}>${partials}</div>
 		`;
@@ -171,6 +188,7 @@ export default class FlyoutMenuComponent {
 		if (!this.#container) {
 			return;
 		}
+
 		render(this.template(), this.#container);
 	}
 
@@ -194,6 +212,7 @@ export default class FlyoutMenuComponent {
 		if (!value) {
 			return "";
 		}
+
 		for (const section of this.#menuItemSections) {
 			for (const entry of section.menuItems) {
 				if (value === entry.value) {
@@ -201,6 +220,7 @@ export default class FlyoutMenuComponent {
 				}
 			}
 		}
+
 		return "";
 	}
 

@@ -6,8 +6,11 @@ import { createRef, ref } from "lit-html/directives/ref.js";
 
 interface DimensionComponentProps {
 	width: number;
+
 	height: number;
+
 	heightOffset?: number;
+
 	onUpdateDimensions: (width: number, height: number) => void;
 }
 
@@ -15,13 +18,21 @@ let component: DimensionComponent;
 
 export default class DimensionComponent {
 	textInputWidth = createRef();
+
 	textInputHeight = createRef();
+
 	width: number;
+
 	height: number;
+
 	heightOffset: number;
+
 	updateOnResize = true;
+
 	disableUserDimensionInputs = false;
+
 	onUpdateDimensions: (width: number, height: number) => void;
+
 	container: HTMLElement | undefined;
 
 	// sampling the canvas element doesn't consistently fire `resize` event
@@ -29,14 +40,19 @@ export default class DimensionComponent {
 
 	constructor(props: DimensionComponentProps, container?: HTMLElement) {
 		this.heightOffset = props.heightOffset || 0;
+
 		this.width = props.width;
+
 		this.height = props.height - this.heightOffset;
+
 		this.onUpdateDimensions = props.onUpdateDimensions;
+
 		this.container = container;
 
 		window.addEventListener("resize", this.#onResize);
 
 		this.update();
+
 		this.onUpdateDimensions(this.width, this.height);
 	}
 
@@ -48,6 +64,7 @@ export default class DimensionComponent {
 				@blur=${this.#onBlur}
 				@keydown=${this.#onKeyDown}
 				${ref(this.textInputWidth)}
+
 				title="Width"
 				type="number" />
 			<i class="codicon codicon-close"></i>
@@ -57,6 +74,7 @@ export default class DimensionComponent {
 				@blur=${this.#onBlur}
 				@keydown=${this.#onKeyDown}
 				${ref(this.textInputHeight)}
+
 				title="Height"
 				type="number" />
 			<button @click=${this.#onRotate} title="Rotate">
@@ -69,6 +87,7 @@ export default class DimensionComponent {
 		if (!this.container) {
 			return;
 		}
+
 		render(this.template(), this.container);
 	}
 
@@ -76,6 +95,7 @@ export default class DimensionComponent {
 		if (e.code !== "Enter") {
 			return;
 		}
+
 		this.#onBlur(e);
 	};
 
@@ -103,6 +123,7 @@ export default class DimensionComponent {
 		}
 
 		this.update();
+
 		this.onUpdateDimensions(this.width, this.height);
 	};
 
@@ -112,18 +133,23 @@ export default class DimensionComponent {
 		}
 
 		this.width = this.screenCastView.offsetWidth;
+
 		this.height = this.screenCastView.offsetHeight - this.heightOffset;
 
 		this.update();
+
 		this.onUpdateDimensions(this.width, this.height);
 	};
 
 	#onRotate = () => {
 		const temp = this.width;
+
 		this.width = this.height;
+
 		this.height = temp;
 
 		this.update();
+
 		this.onUpdateDimensions(this.width, this.height);
 	};
 
@@ -134,8 +160,11 @@ export default class DimensionComponent {
 		disableInputs: boolean,
 	) {
 		this.width = width;
+
 		this.height = height;
+
 		this.updateOnResize = updateOnResize;
+
 		this.disableUserDimensionInputs = disableInputs;
 
 		this.update();

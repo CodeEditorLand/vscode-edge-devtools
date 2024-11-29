@@ -8,11 +8,15 @@ import { IRemoteTargetJson } from "./utils";
 
 export class CDPTarget extends vscode.TreeItem {
 	readonly targetJson: IRemoteTargetJson;
+
 	readonly propertyName: string | null = null;
+
 	readonly iconPath: { dark: string; light: string } | undefined;
+
 	contextValue: "cdpTarget" | "cdpTargetProperty" | "cdpTargetClosing";
 
 	private readonly extensionPath: string | undefined;
+
 	private children: CDPTarget[] = [];
 
 	constructor(
@@ -27,9 +31,13 @@ export class CDPTarget extends vscode.TreeItem {
 				? vscode.TreeItemCollapsibleState.None
 				: vscode.TreeItemCollapsibleState.Collapsed,
 		);
+
 		this.targetJson = targetJson;
+
 		this.propertyName = propertyName;
+
 		this.extensionPath = extensionPath;
+
 		this.contextValue = this.propertyName
 			? "cdpTargetProperty"
 			: "cdpTarget";
@@ -41,6 +49,7 @@ export class CDPTarget extends vscode.TreeItem {
 		const label = this.collapsibleState
 			? `${treeItemLabel}. 'Press tab to access action button list. Use left and right arrow keys to navigate action button list.'`
 			: treeItemLabel;
+
 		this.accessibilityInformation = { label, role: "treeitem" };
 
 		// Get the icon for this type of target
@@ -52,6 +61,7 @@ export class CDPTarget extends vscode.TreeItem {
 				};
 			} else {
 				const icon = `${this.targetJson.type}.svg`;
+
 				this.iconPath = {
 					dark: path.join(
 						this.extensionPath,

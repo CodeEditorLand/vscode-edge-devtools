@@ -41,24 +41,43 @@ import { BrowserVersionDetectionSocket } from "./versionSocketConnection";
 
 export class DevToolsPanel {
 	private readonly config: IRuntimeConfig;
+
 	private readonly context: vscode.ExtensionContext;
+
 	private readonly disposables: vscode.Disposable[] = [];
+
 	private readonly extensionPath: string;
+
 	private readonly mirroredCSS = new Map<string, string>();
+
 	private readonly panel: vscode.WebviewPanel;
+
 	private readonly telemetryReporter: Readonly<TelemetryReporter>;
+
 	private readonly targetUrl: string;
+
 	private panelSocket: PanelSocket;
+
 	private versionDetectionSocket: BrowserVersionDetectionSocket;
+
 	private timeStart: number | null;
+
 	private devtoolsBaseUri: string | null;
+
 	private isHeadless: boolean;
+
 	static instance: DevToolsPanel | undefined;
+
 	private consoleMessages: string[] = [];
+
 	private collectConsoleMessages = true;
+
 	private currentRevision: string | undefined;
+
 	private cssWarningActive: boolean;
+
 	private fallbackChain: (() => void)[] = [];
+
 	private getFallbackRevisionFunction: () => void = () => {};
 
 	private constructor(
@@ -69,14 +88,23 @@ export class DevToolsPanel {
 		config: IRuntimeConfig,
 	) {
 		this.panel = panel;
+
 		this.context = context;
+
 		this.telemetryReporter = telemetryReporter;
+
 		this.extensionPath = this.context.extensionPath;
+
 		this.targetUrl = targetUrl;
+
 		this.config = config;
+
 		this.timeStart = null;
+
 		this.devtoolsBaseUri = this.config.devtoolsBaseUri || null;
+
 		this.isHeadless = SettingsProvider.instance.getHeadlessSettings();
+
 		this.cssWarningActive = false;
 
 		// Hook up the socket events
@@ -90,59 +118,77 @@ export class DevToolsPanel {
 				this.postToDevTools(e, msg),
 			);
 		}
+
 		this.panelSocket.on("ready", () => this.onSocketReady());
+
 		this.panelSocket.on("websocket", (msg: string) =>
 			this.onSocketMessage(msg),
 		);
+
 		this.panelSocket.on("telemetry", (msg: string) =>
 			this.onSocketTelemetry(msg),
 		);
+
 		this.panelSocket.on("getState", (msg: string) =>
 			this.onSocketGetState(msg),
 		);
+
 		this.panelSocket.on("getVscodeSettings", (msg: string) =>
 			this.onSocketGetVscodeSettings(msg),
 		);
+
 		this.panelSocket.on("setState", (msg: string) =>
 			this.onSocketSetState(msg),
 		);
+
 		this.panelSocket.on(
 			"getUrl",
 			(msg: string) => this.onSocketGetUrl(msg) as unknown as void,
 		);
+
 		this.panelSocket.on(
 			"openUrl",
 			(msg: string) => this.onSocketOpenUrl(msg) as unknown as void,
 		);
+
 		this.panelSocket.on(
 			"openInEditor",
 			(msg: string) => this.onSocketOpenInEditor(msg) as unknown as void,
 		);
+
 		this.panelSocket.on(
 			"toggleScreencast",
 			() => this.toggleScreencast() as unknown as void,
 		);
+
 		this.panelSocket.on(
 			"cssMirrorContent",
 			(msg: string) =>
 				this.onSocketCssMirrorContent(msg) as unknown as void,
 		);
+
 		this.panelSocket.on("close", () => this.onSocketClose());
+
 		this.panelSocket.on("copyText", (msg: string) =>
 			this.onSocketCopyText(msg),
 		);
+
 		this.panelSocket.on("focusEditor", (msg: string) =>
 			this.onSocketFocusEditor(msg),
 		);
+
 		this.panelSocket.on("focusEditorGroup", (msg: string) =>
 			this.onSocketFocusEditorGroup(msg),
 		);
+
 		this.panelSocket.on("replayConsoleMessages", () =>
 			this.onSocketReplayConsoleMessages(),
 		);
+
 		this.panelSocket.on("devtoolsConnection", (success: string) =>
 			this.onSocketDevToolsConnection(success),
 		);
+
 		this.panelSocket.on(
 			"toggleCSSMirrorContent",
 			(msg: string) =>
@@ -265,17 +311,20 @@ export class DevToolsPanel {
 		DevToolsPanel.instance = undefined;
 
 		this.panel.dispose();
+
 		this.panelSocket.dispose();
 
 		if (this.timeStart !== null) {
 			const timeEnd = performance.now();
 
 			const sessionTime = timeEnd - this.timeStart;
+
 			this.telemetryReporter.sendTelemetryEvent(
 				"websocket/dispose",
 				undefined,
 				{ sessionTime },
 			);
+
 			this.timeStart = null;
 		}
 
@@ -286,6 +335,7 @@ export class DevToolsPanel {
 				d.dispose();
 			}
 		}
+
 		if (
 			!ScreencastPanel.instance &&
 			vscode.debug.activeDebugSession?.name.includes(
@@ -308,6 +358,7 @@ export class DevToolsPanel {
 
 				break;
 		}
+
 		if (
 			this.collectConsoleMessages &&
 			message &&
@@ -331,7 +382,9 @@ export class DevToolsPanel {
 				{ event: "message", message },
 			);
 		}
+
 		this.consoleMessages = [];
+
 		this.collectConsoleMessages = false;
 	}
 
@@ -342,6 +395,7 @@ export class DevToolsPanel {
 				? "websocket/reconnect"
 				: "websocket/connect",
 		);
+
 		this.timeStart = performance.now();
 	}
 
@@ -349,6 +403,7 @@ export class DevToolsPanel {
 		const { isEnabled } = JSON.parse(
 			message,
 		) as IToggleCSSMirrorContentData;
+
 		void setCSSMirrorContentEnabled(this.context, isEnabled);
 	}
 
@@ -386,6 +441,7 @@ export class DevToolsPanel {
 
 	private onSocketClose() {
 		this.dispose();
+
 		this.collectConsoleMessages = true;
 	}
 
@@ -393,6 +449,7 @@ export class DevToolsPanel {
 		const { clipboardData } = JSON.parse(message) as {
 			clipboardData: string;
 		};
+
 		void vscode.env.clipboard.writeText(clipboardData);
 	}
 
@@ -427,6 +484,7 @@ export class DevToolsPanel {
 
 		const isJsDebugProxiedCDPConnection =
 			this.config.isJsDebugProxiedCDPConnection;
+
 		void vscode.commands.executeCommand(
 			`${SETTINGS_VIEW_NAME}.toggleScreencast`,
 			{ websocketUrl },
@@ -441,7 +499,9 @@ export class DevToolsPanel {
 		switch (telemetry.event) {
 			case "performance": {
 				const measures: ITelemetryMeasures = {};
+
 				measures[`${telemetry.name}.duration`] = telemetry.data;
+
 				this.telemetryReporter.sendTelemetryEvent(
 					`devtools/${telemetry.name}`,
 					undefined,
@@ -453,8 +513,10 @@ export class DevToolsPanel {
 
 			case "enumerated": {
 				const properties: ITelemetryProps = {};
+
 				properties[`${telemetry.name}.actionCode`] =
 					telemetry.data.toString();
+
 				this.telemetryReporter.sendTelemetryEvent(
 					`devtools/${telemetry.name}`,
 					properties,
@@ -465,9 +527,11 @@ export class DevToolsPanel {
 
 			case "error": {
 				const properties: ITelemetryProps = {};
+
 				properties[`${telemetry.name}.info`] = JSON.stringify(
 					telemetry.data,
 				);
+
 				this.telemetryReporter.sendTelemetryErrorEvent(
 					`devtools/${telemetry.name}`,
 					properties,
@@ -484,6 +548,7 @@ export class DevToolsPanel {
 		const preferences: Record<string, unknown> =
 			this.context.workspaceState.get(SETTINGS_PREF_NAME) ||
 			SETTINGS_PREF_DEFAULTS;
+
 		encodeMessageForChannel(
 			(msg) => this.panel.webview.postMessage(msg) as unknown as void,
 			"getState",
@@ -493,6 +558,7 @@ export class DevToolsPanel {
 
 	private onSocketGetVscodeSettings(message: string) {
 		const { id } = JSON.parse(message) as { id: number };
+
 		encodeMessageForChannel(
 			(msg) => this.panel.webview.postMessage(msg) as unknown as void,
 			"getVscodeSettings",
@@ -507,12 +573,15 @@ export class DevToolsPanel {
 		// Parse the preference from the message and store it
 		const { name, value } = JSON.parse(message) as {
 			name: string;
+
 			value: string;
 		};
 
 		const allPref: Record<string, unknown> =
 			this.context.workspaceState.get(SETTINGS_PREF_NAME) || {};
+
 		allPref[name] = value;
+
 		void this.context.workspaceState.update(SETTINGS_PREF_NAME, allPref);
 	}
 
@@ -537,6 +606,7 @@ export class DevToolsPanel {
 
 	private onSocketOpenUrl(message: string) {
 		const { url } = JSON.parse(message) as { url: string };
+
 		void vscode.env.openExternal(vscode.Uri.parse(url));
 	}
 
@@ -613,12 +683,15 @@ export class DevToolsPanel {
 					const standardizedTextEditorCSSText =
 						textEditorCSSText &&
 						textEditorCSSText.replace(/\r\n/g, "\n");
+
 					canMirror =
 						standardizedMirroredCSStext ===
 						standardizedTextEditorCSSText;
 				}
+
 				if (canMirror) {
 					this.mirroredCSS.set(url, newContent);
+
 					void textEditor.edit((editBuilder) => {
 						editBuilder.replace(fullRange, newContent);
 					});
@@ -641,6 +714,7 @@ export class DevToolsPanel {
 				"fallbackRevision",
 				this.currentRevision,
 			);
+
 			this.fallbackChain = this.determineVersionFallback();
 		} else {
 			if (this.currentRevision) {
@@ -655,6 +729,7 @@ export class DevToolsPanel {
 			if (this.fallbackChain.length > 0) {
 				this.getFallbackRevisionFunction =
 					this.fallbackChain.pop() || (() => {});
+
 				this.getFallbackRevisionFunction();
 			}
 		}
@@ -720,10 +795,12 @@ export class DevToolsPanel {
 			// If sourcePath is just a baseUrl, append to default entrypoint
 			try {
 				const oldSourePath = sourcePath;
+
 				sourcePath = addEntrypointIfNeeded(
 					sourcePath,
 					this.config.defaultEntrypoint,
 				);
+
 				appendedEntryPoint = oldSourePath !== sourcePath;
 			} catch {
 				await ErrorReporter.showInformationDialog({
@@ -735,6 +812,7 @@ export class DevToolsPanel {
 				return;
 			}
 		}
+
 		if (this.config.sourceMaps) {
 			sourcePath = applyPathMapping(
 				sourcePath,
@@ -744,11 +822,13 @@ export class DevToolsPanel {
 
 		// Convert the local url to a workspace path
 		const transformer = new debugCore.UrlPathTransformer();
+
 		void transformer.launch({ pathMapping: this.config.pathMapping });
 
 		// origin in this case is trivial since we expect fixSource to take it out
 		// marking it explicitly as invalid to clarify intention.
 		const localSource = { path: sourcePath, origin: "invalid-origin://" };
+
 		await transformer.fixSource(localSource);
 
 		// per documentation if the file was correctly resolved origin will be cleared.
@@ -762,6 +842,7 @@ export class DevToolsPanel {
 		// If failed to resolve origin, it's possible entrypoint needs to be updated.
 		// Space at beginning to allow insertion in message below
 		const entryPointErrorMessage = ` Consider updating the 'Default Entrypoint' setting to map to your root html page. The current setting is '${this.config.defaultEntrypoint}'.`;
+
 		await ErrorReporter.showInformationDialog({
 			errorCode: ErrorCodes.Error,
 			title: "Unable to open file in editor.",
@@ -772,10 +853,12 @@ export class DevToolsPanel {
 	private async showCssMirroringWarning() {
 		if (!this.cssWarningActive) {
 			this.cssWarningActive = true;
+
 			await vscode.window.showWarningMessage(
 				"DevTools will not mirror CSS changes while there are unsaved direct edits. Save your changes then refresh the target page to re-enable.",
 				...[],
 			);
+
 			this.cssWarningActive = false;
 		}
 	}
@@ -815,10 +898,15 @@ export class DevToolsPanel {
                 <script src="${hostUri}"></script>
                 <meta http-equiv="Content-Security-Policy"
                     content="default-src;
+
                     img-src 'self' data: ${this.panel.webview.cspSource};
+
                     style-src 'self' 'unsafe-inline' ${this.panel.webview.cspSource};
+
                     script-src 'self' 'unsafe-eval' ${this.panel.webview.cspSource};
+
                     frame-src 'self' ${this.panel.webview.cspSource} ${cdnBaseUri};
+
                     connect-src 'self' data: ${this.panel.webview.cspSource};
                 ">
             </head>
@@ -840,8 +928,11 @@ export class DevToolsPanel {
 
 	private setCdnParameters(msg: { revision: string; isHeadless: boolean }) {
 		this.currentRevision = msg.revision;
+
 		this.devtoolsBaseUri = `https://devtools.azureedge.net/serve_file/${this.currentRevision}/vscode_app.html`;
+
 		this.isHeadless = msg.isHeadless;
+
 		this.update();
 
 		if (this.isHeadless) {
@@ -873,6 +964,7 @@ export class DevToolsPanel {
 			if (DevToolsPanel.instance) {
 				DevToolsPanel.instance.dispose();
 			}
+
 			const panel = vscode.window.createWebviewPanel(
 				SETTINGS_STORE_NAME,
 				SETTINGS_WEBVIEW_NAME,
@@ -883,10 +975,12 @@ export class DevToolsPanel {
 					retainContextWhenHidden: true,
 				},
 			);
+
 			panel.iconPath = vscode.Uri.joinPath(
 				context.extensionUri,
 				"icon.png",
 			);
+
 			DevToolsPanel.instance = new DevToolsPanel(
 				panel,
 				context,
