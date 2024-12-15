@@ -40,7 +40,6 @@ export default class InfobarComponent {
 				<div class="infobar-message">${this.#message}</div>
 				<button
 					@click=${this.#onClick}
-
 					class="infobar-close-button"
 					${ref(this.#buttonRef)}></button>
 			</div>

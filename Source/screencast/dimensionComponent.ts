@@ -64,7 +64,6 @@ export default class DimensionComponent {
 				@blur=${this.#onBlur}
 				@keydown=${this.#onKeyDown}
 				${ref(this.textInputWidth)}
-
 				title="Width"
 				type="number" />
 			<i class="codicon codicon-close"></i>
@@ -74,7 +73,6 @@ export default class DimensionComponent {
 				@blur=${this.#onBlur}
 				@keydown=${this.#onKeyDown}
 				${ref(this.textInputHeight)}
-
 				title="Height"
 				type="number" />
 			<button @click=${this.#onRotate} title="Rotate">
