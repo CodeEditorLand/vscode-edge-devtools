@@ -633,7 +633,7 @@
 	},
 	"dependencies": {
 		"bufferutil": "4.0.9",
-		"lit-html": "^3.2.1",
+		"lit-html": "3.2.1",
 		"puppeteer-core": "24.2.0",
 		"utf-8-validate": "6.0.5",
 		"ws": "8.18.0",
@@ -644,7 +644,7 @@
 		"@types/node": "22.13.1",
 		"@types/ws": "8.5.14",
 		"fs-extra": "11.3.0",
-		"jest-environment-jsdom": "^29.7.0",
+		"jest-environment-jsdom": "29.7.0",
 		"ts-loader": "9.5.2",
 		"uglify-js": "3.19.3",
 		"unzipper": "0.12.3"
